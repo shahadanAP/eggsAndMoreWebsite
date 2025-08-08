@@ -1,133 +1,160 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
 
-// Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/restaurant-ratings')
+/**
+ * CORS
+ * - Dev (NODE_ENV !== 'production'): allow all (easier testing)
+ * - Prod (NODE_ENV === 'production'): allow only ALLOWED_ORIGINS (comma-separated)
+ */
+const isProd = process.env.NODE_ENV === 'production';
+if (isProd) {
+  const FRONTEND_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  console.log('CORS (prod) allowed origins:', FRONTEND_ORIGINS);
+
+  app.use(cors({
+    origin: (origin, cb) => {
+      // allow server-to-server / curl (no Origin header)
+      if (!origin) return cb(null, true);
+      if (FRONTEND_ORIGINS.includes(origin)) return cb(null, true);
+      console.error('Blocked by CORS. Origin:', origin);
+      cb(new Error('Not allowed by CORS'));
+    },
+    credentials: true
+  }));
+} else {
+  console.log('CORS (dev) allowing all origins');
+  app.use(cors({ origin: true, credentials: true }));
+}
+
+app.use(express.json());
+
+// Health check
+app.get('/health', (req, res) => res.status(200).send('ok'));
+
+/**
+ * Database
+ * - Use env in prod, fallback to local for dev
+ */
+const MONGODB_URI =
+  process.env.MONGODB_URI || 'mongodb://localhost:27017/restaurant-ratings';
+
+mongoose
+  .connect(MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('Could not connect to MongoDB', err));
+  .catch(err => {
+    console.error('Could not connect to MongoDB', err);
+    process.exit(1);
+  });
 
-// Rating Schema
-const ratingSchema = new mongoose.Schema({
-  dishName: String,
-  rating: { type: Number, min: 1, max: 5 },
-  feedback: String,
-  userIdentifier: String, // Stores unique identifier for each user
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
-});
+/**
+ * Schema / Model
+ * - timestamps auto-manage createdAt/updatedAt
+ * - unique(index) to prevent duplicate rating per (dishName, userIdentifier)
+ */
+const ratingSchema = new mongoose.Schema(
+  {
+    dishName: { type: String, required: true, trim: true },
+    rating: { type: Number, min: 1, max: 5, required: true },
+    feedback: { type: String, trim: true },
+    userIdentifier: { type: String, required: true, trim: true }
+  },
+  { timestamps: true }
+);
+
+ratingSchema.index({ dishName: 1, userIdentifier: 1 }, { unique: true });
 
 const Rating = mongoose.model('Rating', ratingSchema);
 
-// Submit or update rating
+/**
+ * Routes
+ */
+
+// Create or update rating
 app.post('/api/ratings', async (req, res) => {
   try {
     const { dishName, rating, feedback, userIdentifier } = req.body;
-    
-    if (!userIdentifier) {
-      return res.status(400).json({ error: 'User identifier is required' });
+    if (!dishName || !rating || !userIdentifier) {
+      return res
+        .status(400)
+        .json({ error: 'dishName, rating, and userIdentifier are required' });
     }
 
-    // Check for existing rating by this user
-    const existingRating = await Rating.findOne({ dishName, userIdentifier });
-    
-    if (existingRating) {
-      // Update existing rating
-      existingRating.rating = rating;
-      existingRating.feedback = feedback;
-      existingRating.updatedAt = new Date();
-      await existingRating.save();
-    } else {
-      // Create new rating
-      const newRating = new Rating({ 
-        dishName, 
-        rating, 
-        feedback, 
-        userIdentifier 
-      });
-      await newRating.save();
-    }
-    
-    // Calculate new average
-    const ratings = await Rating.find({ dishName });
-    const average = ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length;
-    
-    res.json({ 
-      success: true, 
-      average,
-      message: existingRating ? 'Rating updated successfully' : 'Rating submitted successfully'
-    });
+    const update = { rating, feedback };
+    const opts = { upsert: true, new: true, setDefaultsOnInsert: true };
+
+    await Rating.findOneAndUpdate({ dishName, userIdentifier }, update, opts);
+
+    // compute average & count via aggregation (faster)
+    const stats = await Rating.aggregate([
+      { $match: { dishName } },
+      { $group: { _id: '$dishName', average: { $avg: '$rating' }, count: { $sum: 1 } } }
+    ]);
+    const average = stats[0]?.average ?? null;
+
+    res.json({ success: true, average, message: 'Rating saved' });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ error: 'Duplicate rating for this user/dish' });
+    }
     res.status(500).json({ error: error.message });
   }
 });
 
-// Get average rating
+// Get average rating & count for a dish
 app.get('/api/ratings/:dishName', async (req, res) => {
   try {
     const dishName = decodeURIComponent(req.params.dishName);
-    const ratings = await Rating.find({ dishName });
-    
-    if (ratings.length === 0) {
-      return res.json({ average: null, count: 0 });
-    }
-    
-    const average = ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length;
-    res.json({ 
-      average,
-      count: ratings.length 
-    });
+    const stats = await Rating.aggregate([
+      { $match: { dishName } },
+      { $group: { _id: '$dishName', average: { $avg: '$rating' }, count: { $sum: 1 } } }
+    ]);
+    res.json({ average: stats[0]?.average ?? null, count: stats[0]?.count ?? 0 });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Check for existing rating by user
+// Check if a user already rated a dish
 app.get('/api/ratings/:dishName/:userIdentifier', async (req, res) => {
   try {
     const dishName = decodeURIComponent(req.params.dishName);
-    const userIdentifier = req.params.userIdentifier;
-    
+    const { userIdentifier } = req.params;
     const existingRating = await Rating.findOne({ dishName, userIdentifier });
-    
-    res.json({ 
-      exists: !!existingRating,
-      rating: existingRating 
-    });
+    res.json({ exists: !!existingRating, rating: existingRating });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Get all ratings for a dish (optional - for admin purposes)
+// All ratings for a dish (admin)
 app.get('/api/ratings-details/:dishName', async (req, res) => {
   try {
     const dishName = decodeURIComponent(req.params.dishName);
     const ratings = await Rating.find({ dishName }).sort({ updatedAt: -1 });
-    
     res.json({ ratings });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Add this endpoint to get all ratings
+// All ratings (admin)
 app.get('/api/ratings', async (req, res) => {
   try {
-    console.log('Fetching all ratings...'); // Debug log
     const allRatings = await Rating.find({});
-    console.log('Found ratings:', allRatings); // Debug log
     res.json(allRatings);
   } catch (error) {
-    console.error('Error fetching ratings:', error); // Debug log
     res.status(500).json({ error: error.message });
   }
 });
 
-const PORT = 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));

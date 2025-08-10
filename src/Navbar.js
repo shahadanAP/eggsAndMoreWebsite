@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import logo from './assets/eggsandmore.svg';
 
 export default function Navbar() {
@@ -67,10 +67,26 @@ export default function Navbar() {
         )}
         
         <ul className={`nav-links ${isMobile ? (isMenuOpen ? 'open' : '') : 'desktop'}`}>
-          <li><a href="/" className="active" style={{ fontWeight: '700' }}>Home</a></li>
-          <li><a href="/menu" style={{ fontWeight: '700' }}>Menu</a></li>
-          <li><a href="/about" style={{ fontWeight: '700' }}>About</a></li>
-          <li><a href="/contact" style={{ fontWeight: '700' }}>Contact</a></li>
+          <li>
+            <Link to="/" className="active" style={{ fontWeight: '700' }} onClick={() => setIsMenuOpen(false)}>
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link to="/menu" style={{ fontWeight: '700' }} onClick={() => setIsMenuOpen(false)}>
+              Menu
+            </Link>
+          </li>
+          <li>
+            <Link to="/about" style={{ fontWeight: '700' }} onClick={() => setIsMenuOpen(false)}>
+              About
+            </Link>
+          </li>
+          <li>
+            <Link to="/contact" style={{ fontWeight: '700' }} onClick={() => setIsMenuOpen(false)}>
+              Contact
+            </Link>
+          </li>
           <li className="order-online-container">
             <button 
               onClick={toggleOrderOptions}

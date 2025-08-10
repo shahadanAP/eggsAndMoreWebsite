@@ -1,14 +1,12 @@
-// server.js
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const path = require('path');
 
 const app = express();
 
 /**
- * CORS
- * - Dev (NODE_ENV !== 'production'): allow all (easier testing)
- * - Prod (NODE_ENV === 'production'): allow only ALLOWED_ORIGINS (comma-separated)
+ * CORS Configuration
  */
 const isProd = process.env.NODE_ENV === 'production';
 if (isProd) {
@@ -21,7 +19,6 @@ if (isProd) {
 
   app.use(cors({
     origin: (origin, cb) => {
-      // allow server-to-server / curl (no Origin header)
       if (!origin) return cb(null, true);
       if (FRONTEND_ORIGINS.includes(origin)) return cb(null, true);
       console.error('Blocked by CORS. Origin:', origin);
@@ -34,20 +31,21 @@ if (isProd) {
   app.use(cors({ origin: true, credentials: true }));
 }
 
+// Middleware
 app.use(express.json());
+
+// Serve static files from React app (pointing to the build folder)
+app.use(express.static(path.join(__dirname, '../build')));
 
 // Health check
 app.get('/health', (req, res) => res.status(200).send('ok'));
 
 /**
- * Database
- * - Use env in prod, fallback to local for dev
+ * Database Connection
  */
-const MONGODB_URI =
-  process.env.MONGODB_URI || 'mongodb://localhost:27017/restaurant-ratings';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/restaurant-ratings';
 
-mongoose
-  .connect(MONGODB_URI)
+mongoose.connect(MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => {
     console.error('Could not connect to MongoDB', err);
@@ -55,22 +53,16 @@ mongoose
   });
 
 /**
- * Schema / Model
- * - timestamps auto-manage createdAt/updatedAt
- * - unique(index) to prevent duplicate rating per (dishName, userIdentifier)
+ * Rating Schema and Model
  */
-const ratingSchema = new mongoose.Schema(
-  {
-    dishName: { type: String, required: true, trim: true },
-    rating: { type: Number, min: 1, max: 5, required: true },
-    feedback: { type: String, trim: true },
-    userIdentifier: { type: String, required: true, trim: true }
-  },
-  { timestamps: true }
-);
+const ratingSchema = new mongoose.Schema({
+  dishName: { type: String, required: true, trim: true },
+  rating: { type: Number, min: 1, max: 5, required: true },
+  feedback: { type: String, trim: true },
+  userIdentifier: { type: String, required: true, trim: true }
+}, { timestamps: true });
 
 ratingSchema.index({ dishName: 1, userIdentifier: 1 }, { unique: true });
-
 const Rating = mongoose.model('Rating', ratingSchema);
 
 /**
@@ -155,6 +147,24 @@ app.get('/api/ratings', async (req, res) => {
   }
 });
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Internal server error' });
+});
+
+// API 404 handler
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ error: 'API endpoint not found' });
+});
+
+// All other requests return the React app (for client-side routing)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build', 'index.html'));
+});
+
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Serving static files from: ${path.join(__dirname, '../build')}`);
+});

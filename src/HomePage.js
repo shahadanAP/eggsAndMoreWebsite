@@ -127,6 +127,60 @@ export default function HomePage() {
     return () => clearInterval(reviewInterval);
   }, []);
 
+  // Add this useEffect hook with your other useEffect hooks
+useEffect(() => {
+  if (typeof window === 'undefined' || window.innerWidth > 768) return;
+
+  const slider = document.querySelector('.reviews-slider');
+  if (!slider) return;
+
+  let startX = 0;
+  let currentX = 0;
+  let isDragging = false;
+
+  const handleTouchStart = (e) => {
+    startX = e.touches[0].clientX;
+    currentX = startX;
+    isDragging = true;
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    currentX = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    
+    const diff = currentX - startX;
+    const threshold = slider.offsetWidth / 4;
+    
+    if (diff > threshold) {
+      // Swipe right - go to previous slide
+      setCurrentReviewIndex(prev => 
+        prev > 0 ? prev - 1 : imagePaths.reviews.length - 1
+      );
+    } else if (diff < -threshold) {
+      // Swipe left - go to next slide
+      setCurrentReviewIndex(prev => 
+        prev < imagePaths.reviews.length - 1 ? prev + 1 : 0
+      );
+    }
+  };
+
+  slider.addEventListener('touchstart', handleTouchStart, { passive: true });
+  slider.addEventListener('touchmove', handleTouchMove, { passive: false });
+  slider.addEventListener('touchend', handleTouchEnd);
+
+  return () => {
+    slider.removeEventListener('touchstart', handleTouchStart);
+    slider.removeEventListener('touchmove', handleTouchMove);
+    slider.removeEventListener('touchend', handleTouchEnd);
+  };
+}, [imagePaths.reviews.length]);
+
   const handleDishHover = (dishImage) => {
     setIsTransitioning(true);
     setTimeout(() => {

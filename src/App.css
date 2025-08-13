@@ -542,7 +542,7 @@ a {
 
 /* Dropping Images Section */
 .dropping-images-section {
-  padding: 5rem 5%;
+  padding: 5rem 5vw; /* Viewport width units are more reliable */
   background-color: #fff8f0;
   position: relative;
   min-height: 100vh; /* Adjusted for better scroll effect */
@@ -732,12 +732,33 @@ a {
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.8s ease;
 }
 
 .reviews-dot.active {
   background-color: white;
   transform: scale(1.2);
+}
+@media (max-width: 768px) {
+  .reviews-slider {
+    touch-action: pan-y; /* Enable touch scrolling */
+    overflow-x: hidden;
+  }
+  
+  .review-slide {
+    transition: transform 0.7s ease-out;
+  }
+  
+  /* Add this if not already present */
+  .review-slide.active {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  .review-slide:not(.active) {
+    opacity: 0;
+    transform: translateX(100%);
+  }
 }
 
 /* Animations */
@@ -760,47 +781,6 @@ a {
     opacity: 1;
   }
 }
-
-/* Delay animations for each image */
-.image-drop-item:nth-child(1) {
-  animation-delay: 0.2s;
-}
-.image-drop-item:nth-child(2) {
-  animation-delay: 0.4s;
-}
-.image-drop-item:nth-child(3) {
-  animation-delay: 0.6s;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .image-drop-item {
-    width: 250px;
-    height: 250px;
-  }
-  
-  .reviews-slider {
-    height: 300px;
-  }
-}
-
-@media (max-width: 576px) {
-  .image-drop-item {
-    width: 100%;
-    max-width: 300px;
-    height: 250px;
-  }
-  
-  .dropping-images-section {
-    padding: 3rem 5%;
-  }
-  
-  .reviews-section {
-    padding: 3rem 5%;
-  }
-}
-
-
 
 
 /* Featured Dishes Section */

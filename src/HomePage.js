@@ -56,7 +56,6 @@ export default function HomePage() {
   const [isHighTeaVisible, setIsHighTeaVisible] = useState(false);
   const droppingSectionRef = useRef(null);
   const highTeaSectionRef = useRef(null);
-  const reviewIntervalRef = useRef(null); // Add this ref
   const dishes = [
     {
       id: 1,
@@ -121,94 +120,12 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, [currentHeroImage]);
 
- // Unified 10-second interval for ALL devices
-useEffect(() => {
-  reviewIntervalRef.current = setInterval(() => {
-    setCurrentReviewIndex(prev => (prev + 1) % imagePaths.reviews.length);
-  }, 10000);
-
-  return () => {
-    if (reviewIntervalRef.current) {
-      clearInterval(reviewIntervalRef.current);
-    }
-  };
-}, [imagePaths.reviews.length]);
-
   useEffect(() => {
-  if (typeof window === 'undefined' || window.innerWidth > 768) return;
-
-  const slider = document.querySelector('.reviews-slider');
-  if (!slider) return;
-
-  let startX = 0;
-  let currentX = 0;
-  let isDragging = false;
-  let currentTranslate = 0;
-  let prevTranslate = 0;
-  let animationID = 0;
-
-  const handleTouchStart = (e) => {
-    startX = e.touches[0].clientX;
-    currentX = startX;
-    isDragging = true;
-    animationID = requestAnimationFrame(animation);
-    slider.style.transition = 'none'; // Disable transition during drag
-  };
-
-  const handleTouchMove = (e) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    currentX = e.touches[0].clientX;
-    currentTranslate = prevTranslate + currentX - startX;
-  };
-
-  const handleTouchEnd = () => {
-    if (!isDragging) return;
-    isDragging = false;
-    cancelAnimationFrame(animationID);
-    
-    const diff = currentX - startX;
-    const threshold = slider.offsetWidth / 4;
-    
-    if (diff > threshold) {
-      // Swipe right - go to previous slide
-      goToSlide(currentReviewIndex > 0 ? currentReviewIndex - 1 : imagePaths.reviews.length - 1, 'right');
-    } else if (diff < -threshold) {
-      // Swipe left - go to next slide
-      goToSlide(currentReviewIndex < imagePaths.reviews.length - 1 ? currentReviewIndex + 1 : 0, 'left');
-    } else {
-      // Return to current slide
-      goToSlide(currentReviewIndex, diff > 0 ? 'right' : 'left');
-    }
-  };
-
-  const animation = () => {
-    slider.style.transform = `translateX(${currentTranslate}px)`;
-    if (isDragging) {
-      animationID = requestAnimationFrame(animation);
-    }
-  };
-
-  const goToSlide = (index, direction) => {
-    prevTranslate = -index * slider.offsetWidth;
-    currentTranslate = prevTranslate;
-    slider.style.transition = 'transform 0.5s ease-out';
-    slider.style.transform = `translateX(${prevTranslate}px)`;
-    setCurrentReviewIndex(index);
-  };
-
-  slider.addEventListener('touchstart', handleTouchStart, { passive: true });
-  slider.addEventListener('touchmove', handleTouchMove, { passive: false });
-  slider.addEventListener('touchend', handleTouchEnd);
-
-  return () => {
-    cancelAnimationFrame(animationID);
-    slider.removeEventListener('touchstart', handleTouchStart);
-    slider.removeEventListener('touchmove', handleTouchMove);
-    slider.removeEventListener('touchend', handleTouchEnd);
-  };
-}, [currentReviewIndex, imagePaths.reviews.length]);
-
+    const reviewInterval = setInterval(() => {
+      setCurrentReviewIndex(prev => (prev + 1) % imagePaths.reviews.length);
+    }, 10000);
+    return () => clearInterval(reviewInterval);
+  }, []);
 
   const handleDishHover = (dishImage) => {
     setIsTransitioning(true);

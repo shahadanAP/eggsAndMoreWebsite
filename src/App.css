@@ -542,7 +542,7 @@ a {
 
 /* Dropping Images Section */
 .dropping-images-section {
-  padding: 5rem 5vw; /* Viewport width units are more reliable */
+  padding: 5rem 5%;
   background-color: #fff8f0;
   position: relative;
   min-height: 100vh; /* Adjusted for better scroll effect */
@@ -704,24 +704,12 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.6s ease-in-out;
-  transform: translateX(100%);
   opacity: 0;
+  transition: opacity 1s ease-in-out;
 }
 
 .review-slide.active {
-  transform: translateX(0);
   opacity: 1;
-}
-
-.review-slide.prev {
-  transform: translateX(-100%);
-  opacity: 0;
-}
-
-.review-slide.next {
-  transform: translateX(100%);
-  opacity: 0;
 }
 
 .review-slide img {
@@ -752,40 +740,6 @@ a {
   transform: scale(1.2);
 }
 
-/* Mobile Styles */
-@media (max-width: 768px) {
-  .reviews-slider {
-    touch-action: pan-y;
-    overflow-x: hidden;
-  }
-
-  .review-slide {
-    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  /* Improved active state for mobile */
-  .review-slide.active {
-    transform: translateX(0) !important;
-    opacity: 1 !important;
-    z-index: 2;
-  }
-
-  /* Previous slide (swiping right) */
-  .review-slide.prev {
-    transform: translateX(-100%);
-    opacity: 0;
-    z-index: 1;
-  }
-
-  /* Next slide (swiping left) */
-  .review-slide.next {
-    transform: translateX(100%);
-    opacity: 0;
-    z-index: 1;
-  }
-}
-
 /* Animations */
 @keyframes dropIn {
   0% {
@@ -806,6 +760,48 @@ a {
     opacity: 1;
   }
 }
+
+/* Delay animations for each image */
+.image-drop-item:nth-child(1) {
+  animation-delay: 0.2s;
+}
+.image-drop-item:nth-child(2) {
+  animation-delay: 0.4s;
+}
+.image-drop-item:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .image-drop-item {
+    width: 250px;
+    height: 250px;
+  }
+  
+  .reviews-slider {
+    height: 300px;
+  }
+}
+
+@media (max-width: 576px) {
+  .image-drop-item {
+    width: 100%;
+    max-width: 300px;
+    height: 250px;
+  }
+  
+  .dropping-images-section {
+    padding: 3rem 5%;
+  }
+  
+  .reviews-section {
+    padding: 3rem 5%;
+  }
+}
+
+
+
 
 /* Featured Dishes Section */
 .section {

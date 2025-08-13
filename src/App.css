@@ -1165,29 +1165,42 @@ a {
 
 
 /* Menu Page Styles */
-.price-rating-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.menu-page {
+  background-color: #fff8f0;
+  min-height: 100vh;
+  padding-top: 90px;
 }
 
-.menu-item {
-  transition: transform 0.2s ease;
+.menu-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-.menu-item:hover {
-  transform: translateY(-5px);
-}
-.menu-selection {
+.menu-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 40px;
 }
 
+.menu-title-border {
+  border-top: 2px solid var(--accent-color);
+  border-bottom: 2px solid var(--accent-color);
+  padding: 15px 0;
+  margin: 20px auto;
+  max-width: 200px;
+}
+
+.menu-title-border h3 {
+  color: var(--accent-color);
+}
+
+/* Menu Selection */
 .menu-options {
   display: flex;
   justify-content: center;
   gap: 1rem;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
 }
 
 .menu-option {
@@ -1206,29 +1219,7 @@ a {
   color: white;
 }
 
-.style-controls {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background-color: rgba(255,255,255,0.8);
-  border-radius: 10px;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.control-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.control-group label {
-  font-weight: 500;
-}
-
+/* Categories */
 .category-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -1248,13 +1239,12 @@ a {
 
 .category-button.active {
   background-color: var(--accent-color);
-  color: white !important;
+  color: white;
 }
 
+/* Menu Items */
 .menu-items-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
+  color: var(--text-color);
 }
 
 .menu-category {
@@ -1280,6 +1270,7 @@ a {
   border-radius: 10px;
   box-shadow: 0 3px 10px rgba(0,0,0,0.1);
   transition: transform 0.3s ease;
+  cursor: pointer;
 }
 
 .menu-item:hover {
@@ -1295,87 +1286,86 @@ a {
   color: #666;
   margin-bottom: 1rem;
   font-size: 0.9em;
+  font-style: italic;
 }
 
-.price {
-  font-weight: 700;
-  color: var(--primary-color);
-  font-size: 1.1em;
-}
 .item-image-placeholder {
   width: 100px;
   height: 100px;
   border-radius: 50%;
   background-color: #e0e0e0;
-  margin: 0 auto 1rem;
+  margin: 0 auto 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #999;
-  overflow: hidden;
 }
 
-/* Rating system styles */
-.rating-system {
-  margin: 1rem 0 0;
-  padding-top: 1rem;
-  border-top: 1px solid #eee;
-}
-
-.rating-system > div:first-child {
-  margin-bottom: 0.5rem;
-  font-size: 0.9em;
-  color: #666;
-}
-
-.rating-buttons {
+.price-rating-container {
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  margin-bottom: 0.5rem;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0;
 }
 
-.rating-buttons button {
-  width: 30px;
-  height: 30px;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.8em;
+.price {
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 5px;
+  font-size: 1.1em;
+}
+
+/* Rating Styles */
+.loading-ratings {
+  color: #999;
+  font-size: 14px;
+}
+
+.no-ratings {
+  color: #999;
+  font-style: italic;
+  font-size: 14px;
+}
+
+.rating-display {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 2px;
+  font-size: 14px;
 }
 
-.rating-buttons button:hover {
-  background-color: var(--accent-color);
-  color: white;
-  border-color: var(--accent-color);
+.star {
+  color: #ddd;
 }
 
-.average-rating {
-  font-size: 0.9em;
-  color: #666;
+.star.filled {
+  color: #ffc107;
 }
 
-.average-rating strong {
-  color: var(--accent-color);
+.star.half {
+  color: #ffc107;
 }
+
+.rating-value {
+  margin-left: 5px;
+}
+
+/* Responsive Styles */
 @media (max-width: 768px) {
-  .style-controls {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
-  
   .items-grid {
     grid-template-columns: 1fr;
   }
+  
+  .menu-options {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .menu-option {
+    width: 100%;
+    max-width: 300px;
+  }
 }
-
 
 /* Rating Page Styles */
 .rating-page {

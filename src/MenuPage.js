@@ -4,19 +4,6 @@ import axios from 'axios';
 import './App.css';
 
 export default function MenuPage() {
-  // ======================
-  // STYLE CONFIGURATION
-  // ======================
-  const styleConfig = {
-    fontSize: '16px',
-    fontColor: '#333333',
-    backgroundColor: '#f9f5f0',
-    accentColor: '#0f3415',
-    primaryColor: '#4a8c3e',
-    cardBackground: 'white',
-    cardShadow: '0 3px 10px rgba(0,0,0,0.1)'
-  };
-
   const navigate = useNavigate();
   const [activeMenu, setActiveMenu] = useState('breakfast');
   const [activeCategory, setActiveCategory] = useState('');
@@ -25,78 +12,72 @@ export default function MenuPage() {
 
   // Fetch all ratings from backend
   useEffect(() => {
-  const fetchRatings = async () => {
-  try {
-    setLoadingRatings(true);
-    console.log('Fetching ratings from API...'); // Debug log
-    const response = await axios.get('http://localhost:5000/api/ratings');
-    console.log('API response:', response.data); // Debug log
-    
-    const ratingsMap = {};
-    
-    response.data.forEach(rating => {
-      console.log(`Processing rating for: ${rating.dishName}`); // Debug log
-      if (!ratingsMap[rating.dishName]) {
-        ratingsMap[rating.dishName] = {
-          total: rating.rating,
-          count: 1,
-          average: rating.rating
-        };
-      } else {
-        ratingsMap[rating.dishName].total += rating.rating;
-        ratingsMap[rating.dishName].count += 1;
-        ratingsMap[rating.dishName].average = 
-          ratingsMap[rating.dishName].total / ratingsMap[rating.dishName].count;
+    const fetchRatings = async () => {
+      try {
+        setLoadingRatings(true);
+        const response = await axios.get('http://localhost:5000/api/ratings');
+        
+        const ratingsMap = {};
+        response.data.forEach(rating => {
+          if (!ratingsMap[rating.dishName]) {
+            ratingsMap[rating.dishName] = {
+              total: rating.rating,
+              count: 1,
+              average: rating.rating
+            };
+          } else {
+            ratingsMap[rating.dishName].total += rating.rating;
+            ratingsMap[rating.dishName].count += 1;
+            ratingsMap[rating.dishName].average = 
+              ratingsMap[rating.dishName].total / ratingsMap[rating.dishName].count;
+          }
+        });
+        
+        setDishRatings(ratingsMap);
+      } catch (error) {
+        console.error('Error fetching ratings:', error);
+      } finally {
+        setLoadingRatings(false);
       }
-    });
-    
-    console.log('Processed ratings map:', ratingsMap); // Debug log
-    setDishRatings(ratingsMap);
-  } catch (error) {
-    console.error('Error fetching ratings:', error);
-  } finally {
-    setLoadingRatings(false);
-  }
-};
+    };
     fetchRatings();
   }, []);
 
   // Rating display component
   const renderRating = (dishName) => {
-  if (loadingRatings) {
-    return <div style={{ color: '#999', fontSize: '14px' }}>Loading ratings...</div>;
-  }
+    if (loadingRatings) {
+      return <div className="loading-ratings">Loading ratings...</div>;
+    }
 
-  // Find matching rating (case-insensitive)
-  const ratingKey = Object.keys(dishRatings).find(
-    key => key.toLowerCase() === dishName.toLowerCase()
-  );
+    const ratingKey = Object.keys(dishRatings).find(
+      key => key.toLowerCase() === dishName.toLowerCase()
+    );
 
-  const ratingData = ratingKey ? dishRatings[ratingKey] : null;
-  
-  if (!ratingData) {
-    return <div style={{ color: '#999', fontStyle: 'italic', fontSize: '14px' }}>No ratings yet</div>;
-  }
+    const ratingData = ratingKey ? dishRatings[ratingKey] : null;
+    
+    if (!ratingData) {
+      return <div className="no-ratings">No ratings yet</div>;
+    }
 
-  const avgRating = ratingData.average;
-  const fullStars = Math.floor(avgRating);
-  const hasHalfStar = avgRating % 1 >= 0.5;
-  
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', fontSize: '14px' }}>
-      {[...Array(5)].map((_, i) => {
-        if (i < fullStars) {
-          return <span key={i} style={{ color: '#ffc107' }}>★</span>;
-        } else if (i === fullStars && hasHalfStar) {
-          return <span key={i} style={{ color: '#ffc107' }}>½</span>;
-        } else {
-          return <span key={i} style={{ color: '#ddd' }}>★</span>;
-        }
-      })}
-      <span style={{ marginLeft: '5px' }}>({avgRating.toFixed(1)})</span>
-    </div>
-  );
-};
+    const avgRating = ratingData.average;
+    const fullStars = Math.floor(avgRating);
+    const hasHalfStar = avgRating % 1 >= 0.5;
+    
+    return (
+      <div className="rating-display">
+        {[...Array(5)].map((_, i) => {
+          if (i < fullStars) {
+            return <span key={i} className="star filled">★</span>;
+          } else if (i === fullStars && hasHalfStar) {
+            return <span key={i} className="star half">½</span>;
+          } else {
+            return <span key={i} className="star empty">★</span>;
+          }
+        })}
+        <span className="rating-value">({avgRating.toFixed(1)})</span>
+      </div>
+    );
+  };
 
   
 
@@ -381,203 +362,123 @@ export default function MenuPage() {
 
 
   return (
-    <main className="main-content" style={{ backgroundColor: styleConfig.backgroundColor, paddingTop: '90px' }}>
-      {/* Header Section */}
-      <section className="menu-header" style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <div style={{ 
-          borderTop: `2px solid ${styleConfig.accentColor}`,
-          borderBottom: `2px solid ${styleConfig.accentColor}`,
-          padding: '15px 0',
-          margin: '20px auto',
-          maxWidth: '200px'
-        }}>
-          <h3 style={{ color: styleConfig.accentColor }}>OUR MENU</h3>
-        </div>
-      </section>
-
-      {/* Menu Selection */}
-      <section className="menu-selection">
-        <div className="menu-options">
-          <button 
-            className={`menu-option ${activeMenu === 'breakfast' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveMenu('breakfast');
-              setActiveCategory('');
-            }}
-            style={{
-              color: activeMenu === 'breakfast' ? 'white' : styleConfig.fontColor,
-              backgroundColor: activeMenu === 'breakfast' ? styleConfig.accentColor : '#f0f0f0'
-            }}
-          >
-            Breakfast & Brunch
-          </button>
-          <button 
-            className={`menu-option ${activeMenu === 'main' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveMenu('main');
-              setActiveCategory('');
-            }}
-            style={{
-              color: activeMenu === 'main' ? 'white' : styleConfig.fontColor,
-              backgroundColor: activeMenu === 'main' ? styleConfig.accentColor : '#f0f0f0'
-            }}
-          >
-            Main Menu
-          </button>
-          <button 
-            className={`menu-option ${activeMenu === 'drinks' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveMenu('drinks');
-              setActiveCategory('');
-            }}
-            style={{
-              color: activeMenu === 'drinks' ? 'white' : styleConfig.fontColor,
-              backgroundColor: activeMenu === 'drinks' ? styleConfig.accentColor : '#f0f0f0'
-            }}
-          >
-            Drinks
-          </button>
-          <button
-          className={`menu-option ${activeMenu === 'eastern' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveMenu('eastern');
-            setActiveCategory('');
-          }}
-          style={{
-            color: activeMenu === 'eastern' ? 'white' : styleConfig.fontColor,
-            backgroundColor: activeMenu === 'eastern' ? styleConfig.accentColor : '#f0f0f0'
-          }}
-        >
-          Eastern Menu
-        </button>
-        </div>
-      </section>
-
-      {/* Categories */}
-      <div className="category-buttons">
-        {Object.keys(menuData[activeMenu]).map(category => (
-          <button
-            key={category}
-            className={`category-button ${activeCategory === category ? 'active' : ''}`}
-            onClick={() => setActiveCategory(activeCategory === category ? '' : category)}
-            style={{ 
-              fontSize: styleConfig.fontSize,
-              color: activeCategory === category ? 'white' : styleConfig.fontColor,
-              backgroundColor: activeCategory === category ? styleConfig.accentColor : 'transparent',
-              border: `2px solid ${styleConfig.accentColor}`
-            }}
-          >
-            {category}
-          </button>
-        ))}
-      </div>
-
-     {/* Menu Items */}
-      <div className="menu-items-container" style={{ color: styleConfig.fontColor }}>
-        {activeCategory ? (
-          <div className="menu-category">
-            <h2 style={{ 
-              fontSize: `calc(${styleConfig.fontSize} + 8px)`,
-              color: styleConfig.accentColor 
-            }}>
-              {activeCategory}
-            </h2>
-            <div className="items-grid">
-              {menuData[activeMenu][activeCategory].map((item, index) => (
-                <div 
-                  key={index} 
-                  className="menu-item" 
-                  style={{ 
-                    fontSize: styleConfig.fontSize,
-                    backgroundColor: styleConfig.cardBackground,
-                    boxShadow: styleConfig.cardShadow,
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => navigate(`/menu/rate/${activeMenu}/${activeCategory}/${encodeURIComponent(item.name)}`)}
-                >
-                  <div className="item-image-placeholder" style={{
-                    width: '100px',
-                    height: '100px',
-                    borderRadius: '50%',
-                    backgroundColor: '#e0e0e0',
-                    margin: '0 auto 10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#999'
-                  }}>
-                    [Image]
-                  </div>
-                  <h3 style={{ color: styleConfig.accentColor }}>{item.name}</h3>
-                  {item.description && <p style={{ fontStyle: 'italic', margin: '5px 0' }}>{item.description}</p>}
-                  <div className="price-rating-container" style={{ margin: '10px 0' }}>
-                    <div className="price" style={{ 
-                      color: styleConfig.primaryColor,
-                      fontWeight: 'bold',
-                      marginBottom: '5px'
-                    }}>
-                      ${item.price}
-                    </div>
-                    {renderRating(item.name)}
-                  </div>
-                </div>
-              ))}
-            </div>
+    <div className="menu-page">
+      <main className="menu-content">
+        {/* Header Section */}
+        <section className="menu-header">
+          <div className="menu-title-border">
+            <h3>OUR MENU</h3>
           </div>
-        ) : (
-          Object.keys(menuData[activeMenu]).map(category => (
-            <div key={category} className="menu-category">
-              <h2 style={{ 
-                fontSize: `calc(${styleConfig.fontSize} + 8px)`,
-                color: styleConfig.accentColor 
-              }}>
-                {category}
-              </h2>
+        </section>
+
+        {/* Menu Selection */}
+        <section className="menu-selection">
+          <div className="menu-options">
+            <button 
+              className={`menu-option ${activeMenu === 'breakfast' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveMenu('breakfast');
+                setActiveCategory('');
+              }}
+            >
+              Breakfast & Brunch
+            </button>
+            <button 
+              className={`menu-option ${activeMenu === 'main' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveMenu('main');
+                setActiveCategory('');
+              }}
+            >
+              Main Menu
+            </button>
+            <button 
+              className={`menu-option ${activeMenu === 'drinks' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveMenu('drinks');
+                setActiveCategory('');
+              }}
+            >
+              Drinks
+            </button>
+            <button
+              className={`menu-option ${activeMenu === 'eastern' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveMenu('eastern');
+                setActiveCategory('');
+              }}
+            >
+              Eastern Menu
+            </button>
+          </div>
+        </section>
+
+        {/* Categories */}
+        <div className="category-buttons">
+          {Object.keys(menuData[activeMenu]).map(category => (
+            <button
+              key={category}
+              className={`category-button ${activeCategory === category ? 'active' : ''}`}
+              onClick={() => setActiveCategory(activeCategory === category ? '' : category)}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
+        {/* Menu Items */}
+        <div className="menu-items-container">
+          {activeCategory ? (
+            <div className="menu-category">
+              <h2>{activeCategory}</h2>
               <div className="items-grid">
-                {menuData[activeMenu][category].map((item, index) => (
+                {menuData[activeMenu][activeCategory].map((item, index) => (
                   <div 
                     key={index} 
-                    className="menu-item" 
-                    style={{ 
-                      fontSize: styleConfig.fontSize,
-                      backgroundColor: styleConfig.cardBackground,
-                      boxShadow: styleConfig.cardShadow,
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => navigate(`/menu/rate/${activeMenu}/${category}/${encodeURIComponent(item.name)}`)}
+                    className="menu-item"
+                    onClick={() => navigate(`/menu/rate/${activeMenu}/${activeCategory}/${encodeURIComponent(item.name)}`)}
                   >
-                    <div className="item-image-placeholder" style={{
-                      width: '100px',
-                      height: '100px',
-                      borderRadius: '50%',
-                      backgroundColor: '#e0e0e0',
-                      margin: '0 auto 10px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#999'
-                    }}>
+                    <div className="item-image-placeholder">
                       [Image]
                     </div>
-                    <h3 style={{ color: styleConfig.accentColor }}>{item.name}</h3>
-                    {item.description && <p style={{ fontStyle: 'italic', margin: '5px 0' }}>{item.description}</p>}
-                    <div className="price-rating-container" style={{ margin: '10px 0' }}>
-                      <div className="price" style={{ 
-                        color: styleConfig.primaryColor,
-                        fontWeight: 'bold',
-                        marginBottom: '5px'
-                      }}>
-                        ${item.price}
-                      </div>
+                    <h3>{item.name}</h3>
+                    {item.description && <p>{item.description}</p>}
+                    <div className="price-rating-container">
+                      <div className="price">${item.price}</div>
                       {renderRating(item.name)}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          ))
-        )}
-      </div>
-    </main>
+          ) : (
+            Object.keys(menuData[activeMenu]).map(category => (
+              <div key={category} className="menu-category">
+                <h2>{category}</h2>
+                <div className="items-grid">
+                  {menuData[activeMenu][category].map((item, index) => (
+                    <div 
+                      key={index} 
+                      className="menu-item"
+                      onClick={() => navigate(`/menu/rate/${activeMenu}/${category}/${encodeURIComponent(item.name)}`)}
+                    >
+                      <div className="item-image-placeholder">
+                        [Image]
+                      </div>
+                      <h3>{item.name}</h3>
+                      {item.description && <p>{item.description}</p>}
+                      <div className="price-rating-container">
+                        <div className="price">${item.price}</div>
+                        {renderRating(item.name)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </main>
+    </div>
   );
 }

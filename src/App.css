@@ -704,12 +704,24 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.6s ease-in-out;
+  transform: translateX(100%);
   opacity: 0;
-  transition: opacity 1s ease-in-out;
 }
 
 .review-slide.active {
+  transform: translateX(0);
   opacity: 1;
+}
+
+.review-slide.prev {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.review-slide.next {
+  transform: translateX(100%);
+  opacity: 0;
 }
 
 .review-slide img {
@@ -732,32 +744,45 @@ a {
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
-  transition: all 0.8s ease;
+  transition: all 0.3s ease;
 }
 
 .reviews-dot.active {
   background-color: white;
   transform: scale(1.2);
 }
+
+/* Mobile Styles */
 @media (max-width: 768px) {
   .reviews-slider {
-    touch-action: pan-y; /* Enable touch scrolling */
+    touch-action: pan-y;
     overflow-x: hidden;
   }
-  
+
   .review-slide {
-    transition: transform 1s ease-out;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
-  
-  /* Add this if not already present */
+
+  /* Improved active state for mobile */
   .review-slide.active {
-    opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+    z-index: 2;
   }
-  
-  .review-slide:not(.active) {
+
+  /* Previous slide (swiping right) */
+  .review-slide.prev {
+    transform: translateX(-100%);
     opacity: 0;
+    z-index: 1;
+  }
+
+  /* Next slide (swiping left) */
+  .review-slide.next {
     transform: translateX(100%);
+    opacity: 0;
+    z-index: 1;
   }
 }
 
@@ -781,7 +806,6 @@ a {
     opacity: 1;
   }
 }
-
 
 /* Featured Dishes Section */
 .section {

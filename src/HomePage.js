@@ -56,6 +56,7 @@ export default function HomePage() {
   const [isHighTeaVisible, setIsHighTeaVisible] = useState(false);
   const droppingSectionRef = useRef(null);
   const highTeaSectionRef = useRef(null);
+  const reviewIntervalRef = useRef(null); // Add this ref
   const dishes = [
     {
       id: 1,
@@ -120,12 +121,18 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, [currentHeroImage]);
 
-  useEffect(() => {
-    const reviewInterval = setInterval(() => {
-      setCurrentReviewIndex(prev => (prev + 1) % imagePaths.reviews.length);
-    }, 10000);// Change to 10 seconds for better user experience
-    return () => clearInterval(reviewInterval);
-  }, []);
+ // Unified 10-second interval for ALL devices
+useEffect(() => {
+  reviewIntervalRef.current = setInterval(() => {
+    setCurrentReviewIndex(prev => (prev + 1) % imagePaths.reviews.length);
+  }, 10000);
+
+  return () => {
+    if (reviewIntervalRef.current) {
+      clearInterval(reviewIntervalRef.current);
+    }
+  };
+}, [imagePaths.reviews.length]);
 
   useEffect(() => {
   if (typeof window === 'undefined' || window.innerWidth > 768) return;

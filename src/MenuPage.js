@@ -5,7 +5,7 @@ import './App.css';
 
 export default function MenuPage() {
   const navigate = useNavigate();
-  const [activeMenu, setActiveMenu] = useState('breakfast');
+  const [activeMenu, setActiveMenu] = useState('Breakfast');
   const [activeCategory, setActiveCategory] = useState('');
   const [dishRatings, setDishRatings] = useState({});
   const [loadingRatings, setLoadingRatings] = useState(true);
@@ -83,7 +83,7 @@ export default function MenuPage() {
 
   // Menu data (same as before)
    const menuData = {
-    breakfast: {
+    Breakfast: {
     'Eggs Eggs Eggs': [
       { name: '2 Eggs Combo', description: '', price: '14.99' },
       { name: 'Touch and Go', description: '1 egg with choice of 2 beef strips or 2 beef sausage', price: '14.99' },
@@ -159,7 +159,7 @@ export default function MenuPage() {
     },
 
 
-    main: {
+    Main: {
     'Appetizers': [
     { name: 'Cheesy Garlic Toast (2 Slices)', description: '', price: '7.99' },
     { name: 'Samosa (4 Pieces)', description: 'Potato and peas, served with ketchup and green chutney', price: '6.99' },
@@ -245,7 +245,7 @@ export default function MenuPage() {
     ]
     },
 
-    drinks: {
+    Drinks: {
     'Drinks': [
       { name: 'Coffee (bottomless)', description: '', price: '3.99' },
       { name: 'Hot Tea', description: '', price: '3.99' },
@@ -273,92 +273,117 @@ export default function MenuPage() {
     ]
   },
 
-   eastern: {
-        'Combos (available till 3:00 pm)': [
-            { name: 'Haiwapuri', description: '3 Puri, channa, Potatos curry', price: '12.99' },
-            { name: 'Cholie bhature', description: '2 bhaturay with channa, pickle & salad', price: '12.99' }
-        ],
+   Eastern: {
+      'Combos': [
+        { name: 'Halwapuri', description: '(3 puri, channa, potato curry)', price: '14.99' },
+        { name: 'Cholle Bhature', description: '(2 bhaturay with channa, pickle & salad)', price: '13.99' },
+        { name: 'Sarsoon Saag with Makki Rotti and Butter', description: '(winter only)', price: '21.99' },
+        { name: 'Missi Rotti Combo', description: '(2 rotti + makhan + sweet or salty lassi)', price: '18.99' } // TODO: verify price on your print menu
+      ],
 
-        'Curries': [
-            { name: 'Channa massala', description: '', price: '12.99' },
-            { name: 'Potato curry', description: '', price: '11.99' },
-            { name: 'Haiwa', description: '', price: '11.99' },
-            { name: 'Dum Geema', description: '', price: '16.99' },
-            { name: 'Beef Paya', description: '', price: '18.99' },
-            { name: 'Beef Nihari', description: '', price: '19.99' }
-        ],
+      'Meat and Veggie Curries': [
+        { name: 'Channa Massala', description: '', price: '14.99' },
+        { name: 'Potato Curry', description: '', price: '11.99' },
+        { name: 'Halwa', description: '', price: '11.99' },
+        { name: 'Dum Qeema', description: '', price: '16.99' },
+        { name: 'Beef Paya', description: '', price: '18.99' },
+        { name: 'Beef Nihari', description: '', price: '19.99' },
+        { name: 'Chicken Badami Qorma', description: '', price: '16.99' },
+        { name: 'Saag with Makhan', description: '', price: '18.99' }
+      ],
 
-        'Desi Omlettes': [
-            { name: 'Half Fry/ sunny Side (2 eggs)', description: '', price: '4.99' },
-            { name: 'Scrambled eggs', description: '', price: '6.99' },
-            { name: 'Desi Veggie Omlette', description: '', price: '9.99' },
-            { name: 'Cheese Omellete', description: '', price: '9.99' },
-            { name: 'Cheese and Veggie Omlette', description: '', price: '10.99' }
-        ],
+      'Desi Omelettes': [
+        { name: 'Half Fry / Sunny Side (2 eggs)', description: '', price: '4.99' },
+        { name: 'Scrambled Eggs', description: '', price: '6.99' },
+        { name: 'Desi Veggie Omelette', description: '', price: '9.99' },
+        { name: 'Cheese Omelette', description: '', price: '9.99' },
+        { name: 'Cheese & Veggie Omelette', description: '', price: '10.99' }
+      ],
 
-        'Stuffed Parathas': [
-            { name: 'Meetha Paratha', description: '', price: '7.99' },
-            { name: 'Nutella Paratha', description: '', price: '7.99' },
-            { name: 'Sweet Ice Special Paratha with nuts', description: '', price: '10.99' },
-            { name: 'Adu paratha', description: '', price: '9.99' },
-            { name: 'Mull Paratha', description: '', price: '9.99' },
-            { name: 'Mix veg + panser Paratha', description: '', price: '12.99' },
-            { name: 'Panser paratha', description: '', price: '10.99' },
-            { name: 'Chicken Tikka Paratha', description: '', price: '11.99' },
-            { name: 'Malai Chicken Partha', description: '', price: '11.99' },
-            { name: 'Beef Geema Paratha', description: '', price: '11.99' }
-        ],
+      'Stuffed Parathas': [
+        { name: 'Meetha Paratha', description: '', price: '7.99' },
+        { name: 'Nutella Paratha', description: '', price: '7.99' },
+        { name: 'Sweet RC Special Paratha with Nuts', description: '', price: '10.99' },
+        { name: 'Aalu Paratha', description: '', price: '9.99' },
+        { name: 'Muli Paratha', description: '', price: '9.99' },
+        { name: 'Mix Veg + Paneer Paratha', description: '', price: '12.99' },
+        { name: 'Paneer Paratha', description: '', price: '10.99' },
+        { name: 'Chicken Tikka Paratha', description: '', price: '11.99' },
+        { name: 'Malai Chicken Paratha', description: '', price: '11.99' },
+        { name: 'Beef Qeema Paratha', description: '', price: '11.99' }
+      ],
 
+      'Parathas': [
+        { name: 'Tawa Paratha', description: '', price: '5.99' },
+        { name: 'Tandoori Paratha', description: '', price: '4.99' },
+        { name: 'Lacha Paratha', description: '', price: '6.99' }
+      ],
 
-        'Naan': [
-            { name: 'Plain Naan', description: '', price: '2.49' },
-            { name: 'Garlic Naan', description: '', price: '3.99' },
-            { name: 'Butter Naaan', description: '', price: '3.49' },
-            { name: 'Sesame Naan', description: '', price: '3.99' },
-            { name: 'Kalonji naan', description: '', price: '3.99' }
-        ],
+      'Stuffed Naan': [
+        { name: 'Cheesey Chicken Tikka Naan', description: '', price: '18.00' },
+        { name: 'Cheesey Creamy Chicken Naan', description: '', price: '18.00' },
+        { name: 'Cheesey Qeema Naan', description: '', price: '18.00' },
+        { name: 'Sweet Shahi Naan', description: '', price: '18.00' },
+        { name: 'Cheesey Naan', description: '', price: '14.00' },
+        { name: 'Paneer Veggie Naan', description: '', price: '16.00' },
+        { name: 'Aloo + Cheesey Naan', description: '', price: '16.00' },
+        { name: 'Nutella Naan', description: '', price: '16.00' },
+        { name: 'Panze Classic Naan', description: '', price: '19.25' },
+        { name: 'Panze Hawaiian Naan', description: '', price: '19.25' },
+        { name: 'Panze Greco Naan', description: '', price: '19.25' }
+      ],
 
-        'Extras': [
-            { name: 'Puri', description: '', price: '2.49' },
-            { name: 'Bhatura', description: '', price: '4.49' },
-            { name: 'Extra Channa', description: '', price: '3.99' },
-            { name: 'Extra Haiwa', description: '', price: '3.99' },
-            { name: 'Extra potatoes', description: '', price: '3.99' }
-        ],
+      'Naan': [
+        { name: 'Plain Naan', description: '', price: '2.49' },
+        { name: 'Garlic Naan', description: '', price: '3.99' },
+        { name: 'Butter Naaan', description: '', price: '3.49' }, // keeping spelling from menu
+        { name: 'Sesame Naan', description: '', price: '3.99' },
+        { name: 'Kalonji Naan', description: '', price: '3.99' },
+        { name: 'Tandoori Naan', description: '', price: '3.99' },
+        { name: 'Butter Tandoori Naan', description: '', price: '3.99' }
+      ],
 
-        'Parathas': [
-            { name: 'Tawa Paratha', description: '', price: '5.99' },
-            { name: 'Tanduri Paratha', description: '', price: '4.99' },
-            { name: 'Lacha Paratha', description: '', price: '6.99' }
-        ],
+      'Extras': [
+        { name: 'Puri', description: '', price: '2.99' },
+        { name: 'Bhatura', description: '', price: '4.49' },
+        { name: 'Extra Channa', description: '', price: '3.99' },
+        { name: 'Extra Halwa', description: '', price: '3.99' },
+        { name: 'Extra Potatoes', description: '', price: '3.99' },
+        { name: 'Achaar', description: '', price: '1.99' },
+        { name: 'Raita', description: '', price: '1.99' }
+      ],
 
+      'Lassis': [
+        { name: 'Salty Lassi', description: '', price: '6.99' },
+        { name: 'Sweet Lassi', description: '', price: '6.99' },
+        { name: 'Mango Lassi', description: '', price: '7.99' }
+      ],
 
-        'Lassis': [
-            { name: 'Salty Lassi', description: '', price: '6.99' },
-            { name: 'Sweet Lassi', description: '', price: '6.99' },
-            { name: 'Mango Lassi', description: '', price: '7.99' }
-        ],
+      'Shakes': [
+        { name: 'Milkshakes', description: 'topped with whipped cream (Strawberry | Banana | Oreo | Chocolate | Peanut Butter)', price: '7.99' }
+      ],
 
-        'Shakes': [
-            { name: 'Strawberry Shake', description: '', price: '7.99' }
-        ],
+      'Smoothies': [
+        { name: 'Strawberry Smoothie', description: '', price: '7.99' }
+      ],
 
-        'Hot Drinks': [
-            { name: 'Pakistani Chai', description: '', price: '4.99' },
-            { name: 'Pakistani Coffee', description: '', price: '5.99' }
-        ],
+      'Hot Drinks': [
+        { name: 'Pakistani Chai', description: '', price: '4.99' },
+        { name: 'Pakistani Coffee', description: '', price: '5.99' },
+        { name: 'Kashmiri Chai', description: '', price: '5.99' }
+      ],
 
-        'Summer Blast Drinks': [
-            { name: 'Berry Blast', description: '', price: '8.99' },
-            { name: 'Virgin Caesar', description: '', price: '8.99' },
-            { name: 'Lemonade', description: '', price: '8.99' },
-            { name: 'Blue Lagoon', description: '', price: '8.99' },
-            { name: 'Strawberry Mojito', description: '', price: '8.99' },
-            { name: 'Mint Margarita', description: '', price: '8.99' },
-            { name: 'Aurora Sea', description: '', price: '8.99' }
-        ]
+      'Summer Blast Drinks': [
+        { name: 'Berry Blast', description: '', price: '8.99' },
+        { name: 'Virgin Caesar', description: '', price: '8.99' },
+        { name: 'Lemonade', description: '', price: '8.99' },
+        { name: 'Blue Lagoon', description: '', price: '8.99' },
+        { name: 'Strawberry Mojito', description: '', price: '8.99' },
+        { name: 'Mint Margarita', description: '', price: '8.99' },
+        { name: 'Aurora Sea', description: '', price: '8.99' }
+      ]
     }
-  };
+      };
 
 
   return (
@@ -375,36 +400,36 @@ export default function MenuPage() {
         <section className="menu-selection">
           <div className="menu-options">
             <button 
-              className={`menu-option ${activeMenu === 'breakfast' ? 'active' : ''}`}
+              className={`menu-option ${activeMenu === 'Breakfast' ? 'active' : ''}`}
               onClick={() => {
-                setActiveMenu('breakfast');
+                setActiveMenu('Breakfast');
                 setActiveCategory('');
               }}
             >
               Breakfast & Brunch
             </button>
             <button 
-              className={`menu-option ${activeMenu === 'main' ? 'active' : ''}`}
+              className={`menu-option ${activeMenu === 'Main' ? 'active' : ''}`}
               onClick={() => {
-                setActiveMenu('main');
+                setActiveMenu('Main');
                 setActiveCategory('');
               }}
             >
               Main Menu
             </button>
             <button 
-              className={`menu-option ${activeMenu === 'drinks' ? 'active' : ''}`}
+              className={`menu-option ${activeMenu === 'Drinks' ? 'active' : ''}`}
               onClick={() => {
-                setActiveMenu('drinks');
+                setActiveMenu('Drinks');
                 setActiveCategory('');
               }}
             >
               Drinks
             </button>
             <button
-              className={`menu-option ${activeMenu === 'eastern' ? 'active' : ''}`}
+              className={`menu-option ${activeMenu === 'Eastern' ? 'active' : ''}`}
               onClick={() => {
-                setActiveMenu('eastern');
+                setActiveMenu('Eastern');
                 setActiveCategory('');
               }}
             >

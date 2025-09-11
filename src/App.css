@@ -163,6 +163,33 @@ a {
   transition: var(--transition);
 }
 
+/* Tablets and smaller devices */
+@media (max-width: 1024px) {
+  .logo {
+    height: 40px;
+    bottom: 12px;
+    left: 15px;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  .logo {
+    height: 35px;
+    bottom: 10px;
+    left: 10px;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .logo {
+    height: 30px;
+    bottom: 8px;
+    left: 8px;
+  }
+}
+
 .nav-links {
   display: flex;
   list-style: none;

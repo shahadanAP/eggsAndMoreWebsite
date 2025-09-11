@@ -121,6 +121,14 @@ export default function Navbar() {
                 >
                   DoorDash
                 </a>
+                <a 
+                  href="https://orders.iorders.online/rajas-cuisine-calgary" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  iOrders
+                </a>
               </div>
             )}
           </li>

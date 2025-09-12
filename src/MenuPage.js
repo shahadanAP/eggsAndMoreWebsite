@@ -275,8 +275,8 @@ export default function MenuPage() {
 
    Eastern: {
       'Combos': [
-        { name: 'Halwapuri', description: '(3 puri, channa, potato curry)', price: '14.99' },
-        { name: 'Cholle Bhature', description: '(2 bhaturay with channa, pickle & salad)', price: '13.99' },
+        { name: 'Halwapuri', description: '(3 puri, channa, potato curry)', price: '13.99' },
+        { name: 'Cholle Bhature', description: '(2 bhaturay with channa, pickle & salad)', price: '14.99' },
         { name: 'Sarsoon Saag with Makki Rotti and Butter', description: '(winter only)', price: '21.99' },
         { name: 'Missi Rotti Combo', description: '(2 rotti + makhan + sweet or salty lassi)', price: '18.99' } // TODO: verify price on your print menu
       ],

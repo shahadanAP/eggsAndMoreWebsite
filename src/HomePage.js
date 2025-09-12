@@ -234,7 +234,7 @@ export default function HomePage() {
             <VideoPlayer />
           </div>
           <div className="high-tea-content">
-            <h2>INTRODUCING OUR NEW HIGH TEA PLATTER!!</h2>
+            <h2>INTRODUCING OUR NEW HIGH TEA PLATTER (COMING SOON)!!</h2>
             <p>
               Experience our exquisite High Tea Platter featuring a delightful selection of finger sandwiches, 
               freshly baked scones with clotted cream and jam, and an assortment of delicate pastries and cakes. 

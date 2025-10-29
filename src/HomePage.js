@@ -56,6 +56,7 @@ export default function HomePage() {
   const [isHighTeaVisible, setIsHighTeaVisible] = useState(false);
   const droppingSectionRef = useRef(null);
   const highTeaSectionRef = useRef(null);
+  const [isCarouselAutoRotating, setIsCarouselAutoRotating] = useState(true);
   const dishes = [
     {
       id: 1,
@@ -121,11 +122,13 @@ export default function HomePage() {
   }, [currentHeroImage]);
 
   useEffect(() => {
-    const reviewInterval = setInterval(() => {
-      setCurrentReviewIndex(prev => (prev + 1) % imagePaths.reviews.length);
-    }, 10000);
-    return () => clearInterval(reviewInterval);
-  }, []);
+    if (isCarouselAutoRotating) {
+      const reviewInterval = setInterval(() => {
+        setCurrentReviewIndex(prev => (prev + 1) % imagePaths.reviews.length);
+      }, 4000);
+      return () => clearInterval(reviewInterval);
+    }
+  }, [isCarouselAutoRotating]);
 
   const handleDishHover = (dishImage) => {
     setIsTransitioning(true);
@@ -145,6 +148,18 @@ export default function HomePage() {
 
   const handleDotClick = (index) => {
     setCurrentReviewIndex(index);
+    setIsCarouselAutoRotating(false);
+    setTimeout(() => setIsCarouselAutoRotating(true), 10000);
+  };
+
+  const handleCarouselNavigation = (direction) => {
+    setIsCarouselAutoRotating(false);
+    if (direction === 'next') {
+      setCurrentReviewIndex((prev) => (prev + 1) % imagePaths.reviews.length);
+    } else {
+      setCurrentReviewIndex((prev) => (prev - 1 + imagePaths.reviews.length) % imagePaths.reviews.length);
+    }
+    setTimeout(() => setIsCarouselAutoRotating(true), 10000);
   };
 
   return (
@@ -287,23 +302,70 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Reviews Slider Section */}
+      {/* Reviews Slider Section - 3D Carousel */}
       <section className="reviews-section">
         <h2>What Our Guests Say</h2>
         
-        <div className="reviews-slider">
-          {imagePaths.reviews.map((review, index) => (
-            <div 
-              key={index}
-              className={`review-slide ${index === currentReviewIndex ? 'active' : ''}`}
-            >
-              <img 
-                src={review} 
-                alt={`Customer Review ${index + 1}`}
-                onError={(e) => e.target.style.display = 'none'}
-              />
-            </div>
-          ))}
+        <div className="carousel-3d-container">
+          <div className="carousel-3d">
+            {imagePaths.reviews.map((review, index) => {
+              const offset = index - currentReviewIndex;
+              const absOffset = Math.abs(offset);
+              
+              // Adjust distances based on screen size
+              const isMobile = window.innerWidth <= 576;
+              const isSmallMobile = window.innerWidth <= 400;
+              
+              const distances = isSmallMobile 
+                ? { center: 200, side: 150, far: 100 }
+                : isMobile 
+                  ? { center: 250, side: 180, far: 120 }
+                  : { center: 350, side: 250, far: 150 };
+              
+              const scales = isSmallMobile || isMobile
+                ? { center: 1, side: 0.65, far: 0.4 }
+                : { center: 1, side: 0.75, far: 0.5 };
+              
+              return (
+                <div 
+                  key={index}
+                  className={`carousel-3d-item ${index === currentReviewIndex ? 'active' : ''}`}
+                  style={{
+                    transform: `
+                      rotateY(${offset * 60}deg) 
+                      translateZ(${absOffset === 0 ? distances.center : absOffset === 1 ? distances.side : distances.far}px)
+                      scale(${absOffset === 0 ? scales.center : absOffset === 1 ? scales.side : scales.far})
+                      translate(-50%, -50%)
+                    `,
+                    opacity: absOffset > 2 ? 0 : 1,
+                    zIndex: absOffset === 0 ? 10 : 10 - absOffset,
+                  }}
+                  onClick={() => handleDotClick(index)}
+                >
+                  <img 
+                    src={review} 
+                    alt={`Customer Review ${index + 1}`}
+                    onError={(e) => e.target.style.display = 'none'}
+                  />
+                </div>
+              );
+            })}
+          </div>
+          
+          <button 
+            className="carousel-3d-nav carousel-3d-prev" 
+            onClick={() => handleCarouselNavigation('prev')}
+            aria-label="Previous review"
+          >
+            ‹
+          </button>
+          <button 
+            className="carousel-3d-nav carousel-3d-next" 
+            onClick={() => handleCarouselNavigation('next')}
+            aria-label="Next review"
+          >
+            ›
+          </button>
         </div>
         
         <div className="reviews-dots">

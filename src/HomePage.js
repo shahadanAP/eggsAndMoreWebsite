@@ -309,7 +309,17 @@ export default function HomePage() {
         <div className="carousel-3d-container">
           <div className="carousel-3d">
             {imagePaths.reviews.map((review, index) => {
-              const offset = index - currentReviewIndex;
+              // Calculate circular offset for seamless looping
+              let offset = index - currentReviewIndex;
+              const totalItems = imagePaths.reviews.length;
+              
+              // Adjust offset for circular loop (shortest path)
+              if (offset > totalItems / 2) {
+                offset -= totalItems;
+              } else if (offset < -totalItems / 2) {
+                offset += totalItems;
+              }
+              
               const absOffset = Math.abs(offset);
               
               // Adjust distances based on screen size
@@ -317,13 +327,13 @@ export default function HomePage() {
               const isSmallMobile = window.innerWidth <= 400;
               
               const distances = isSmallMobile 
-                ? { center: 200, side: 150, far: 100 }
+                ? { center: 150, side: 110, far: 70 }
                 : isMobile 
-                  ? { center: 250, side: 180, far: 120 }
+                  ? { center: 170, side: 125, far: 85 }
                   : { center: 350, side: 250, far: 150 };
               
               const scales = isSmallMobile || isMobile
-                ? { center: 1, side: 0.65, far: 0.4 }
+                ? { center: 1, side: 0.55, far: 0.3 }
                 : { center: 1, side: 0.75, far: 0.5 };
               
               return (

@@ -60,22 +60,22 @@ export default function HomePage() {
   const dishes = [
     {
       id: 1,
-      name: "EGGS BENEDICT",
-      description: "Poached eggs with hollandaise sauce",
+      name: "Eggs Benedict",
+      description: "Perfectly poached eggs with rich hollandaise sauce",
       image: eggsBenedictImage,
       thumbnail: eggsBenedictImage
     },
     {
       id: 2,
-      name: "STEAK & EGGS",
-      description: "Fluffy pancakes with syrup & berries",
+      name: "Steak & Eggs",
+      description: "Premium steak paired with farm-fresh eggs",
       image: pancakesImage,
       thumbnail: pancakesImage
     },
     {
       id: 3,
-      name: "STEAK STRIPS & EGGS",
-      description: "Three-egg omelette with fillings",
+      name: "Steak Strips & Eggs",
+      description: "Tender steak strips served with fluffy eggs",
       image: omeletteImage,
       thumbnail: omeletteImage
     }
@@ -162,6 +162,64 @@ export default function HomePage() {
     setTimeout(() => setIsCarouselAutoRotating(true), 10000);
   };
 
+  // Touch swipe support for carousel (mobile/tablet)
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const touchDeltaX = useRef(0);
+  const isSwiping = useRef(false);
+
+  const onCarouselTouchStart = (e) => {
+    if (!e.touches || e.touches.length === 0) return;
+    const t = e.touches[0];
+    touchStartX.current = t.clientX;
+    touchStartY.current = t.clientY;
+    touchDeltaX.current = 0;
+    isSwiping.current = false;
+    // pause auto-rotate while user interacts
+    setIsCarouselAutoRotating(false);
+  };
+
+  const onCarouselTouchMove = (e) => {
+    if (!e.touches || e.touches.length === 0) return;
+    const t = e.touches[0];
+    const dx = t.clientX - touchStartX.current;
+    const dy = t.clientY - touchStartY.current;
+    // Only consider horizontal swipes and ignore small jitters
+    if (!isSwiping.current) {
+      if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
+        isSwiping.current = true;
+        // Prevent the page from horizontally panning on some browsers
+        e.preventDefault();
+      } else {
+        return;
+      }
+    }
+    touchDeltaX.current = dx;
+  };
+
+  const onCarouselTouchEnd = () => {
+    const threshold = 40; // minimum pixels to trigger a swipe
+    const dx = touchDeltaX.current;
+    let navigated = false;
+    if (isSwiping.current) {
+      if (dx <= -threshold) {
+        // swipe left -> next
+        handleCarouselNavigation('next');
+        navigated = true;
+      } else if (dx >= threshold) {
+        // swipe right -> prev
+        handleCarouselNavigation('prev');
+        navigated = true;
+      }
+    }
+    // if no navigation happened, resume auto-rotate shortly
+    if (!navigated) {
+      setTimeout(() => setIsCarouselAutoRotating(true), 5000);
+    }
+    isSwiping.current = false;
+    touchDeltaX.current = 0;
+  };
+
   return (
     <div className="app">
       {/* Hero Section */}
@@ -172,7 +230,7 @@ export default function HomePage() {
             <span className="title-line">Breakfast</span>
             <span className="title-line">& Brunch</span>
           </h1>
-          <p>Fresh ingredients, homemade recipes, served with love</p>
+          <p>Fresh ingredients, homemade recipes, served with love.</p>
           <div className="hero-buttons">
             <button onClick={() => navigate('/menu')} className="nav-button" style={{ fontWeight: '700' }}> 
               View Menu
@@ -198,11 +256,11 @@ export default function HomePage() {
     >
       <div className="dropping-content-wrapper">
         <div className="image-drop-text">
-          <h2>Our Culinary Masterpieces</h2>
+          <h2>Our Culinary Creations</h2>
           <p>
-            Each dish at our restaurant is carefully crafted to deliver an unforgettable dining experience. 
-            Our chefs combine traditional techniques with innovative flair to create these visual and 
-            flavorful masterpieces.
+            Each dish is carefully crafted to deliver an unforgettable dining experience. 
+            Our talented chefs combine traditional techniques with innovative flair to create 
+            visually stunning and deliciously flavorful masterpieces.
           </p>
         </div>
               
@@ -249,7 +307,8 @@ export default function HomePage() {
             <VideoPlayer />
           </div>
           <div className="high-tea-content">
-            <h2>INTRODUCING OUR NEW HIGH TEA PLATTER (COMING SOON)!!</h2>
+            <h2>Introducing Our High Tea Platter</h2>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: '400', marginTop: '0.5rem', color: '#666' }}>Coming Soon</h3>
             <p>
               Experience our exquisite High Tea Platter featuring a delightful selection of finger sandwiches, 
               freshly baked scones with clotted cream and jam, and an assortment of delicate pastries and cakes. 
@@ -260,12 +319,12 @@ export default function HomePage() {
         
         <div className="high-tea-image-container">
           <div className="high-tea-description">
-            <h3>What's Included:</h3>
+            <h3>What's Included</h3>
             <ul>
-              <li>Assorted finger sandwiches (cucumber, egg salad, smoked salmon)</li>
+              <li>Assorted finger sandwiches: cucumber, egg salad, and smoked salmon</li>
               <li>Freshly baked scones with Devonshire cream and preserves</li>
               <li>Selection of French pastries and mini desserts</li>
-              <li>Your choice of premium loose-leaf tea or coffee</li>
+              <li>Your choice of premium loose-leaf tea or freshly brewed coffee</li>
             </ul>
           </div>
           <DroppingImage 
@@ -306,7 +365,13 @@ export default function HomePage() {
       <section className="reviews-section">
         <h2>What Our Guests Say</h2>
         
-        <div className="carousel-3d-container">
+        <div 
+          className="carousel-3d-container"
+          onTouchStart={onCarouselTouchStart}
+          onTouchMove={onCarouselTouchMove}
+          onTouchEnd={onCarouselTouchEnd}
+          onTouchCancel={onCarouselTouchEnd}
+        >
           <div className="carousel-3d">
             {imagePaths.reviews.map((review, index) => {
               // Calculate circular offset for seamless looping
@@ -350,7 +415,15 @@ export default function HomePage() {
                     opacity: absOffset > 2 ? 0 : 1,
                     zIndex: absOffset === 0 ? 10 : 10 - absOffset,
                   }}
-                  onClick={() => handleDotClick(index)}
+                  onClick={(e) => {
+                    // if a swipe just occurred, ignore the click to avoid accidental navigation
+                    if (isSwiping.current || Math.abs(touchDeltaX.current) > 10) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    handleDotClick(index);
+                  }}
                 >
                   <img 
                     src={review} 

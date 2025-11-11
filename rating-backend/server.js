@@ -45,12 +45,64 @@ app.get('/health', (req, res) => res.status(200).send('ok'));
  */
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/restaurant-ratings';
 
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => {
-    console.error('Could not connect to MongoDB', err);
-    process.exit(1);
-  });
+// Sanitize URI for logs (hide password)
+const redactMongoUri = (uri) => {
+  try {
+    const u = new URL(uri);
+    if (u.password) u.password = '***';
+    return u.toString();
+  } catch {
+    return '[redacted]';
+  }
+};
+
+// Recommended mongoose options for cloud connections
+const mongooseOptions = {
+  // 20s to find primary before failing an attempt
+  serverSelectionTimeoutMS: 20000,
+  // 45s idle socket timeout (keeps connections healthy)
+  socketTimeoutMS: 45000,
+  // modest pool size for small services
+  maxPoolSize: 5,
+};
+
+let lastDbError = null;
+
+const classifyAndHint = (err) => {
+  const msg = err?.message || '';
+  if (/ENOTFOUND|getaddrinfo/i.test(msg)) {
+    console.error('Hint: DNS lookup failed. Verify your connection string host (cluster URL) and internet/DNS.');
+  }
+  if (/ReplicaSetNoPrimary/i.test(msg)) {
+    console.error('Hint: Could not find a primary. If you recently changed IP allowlist in Atlas, wait ~1-2 minutes.');
+  }
+  if (/Authentication failed|auth/i.test(msg)) {
+    console.error('Hint: Authentication failed. Check username/password in MONGODB_URI and URL-encode special characters.');
+  }
+  if (/not whitelisted|IP|access/i.test(msg)) {
+    console.error('Hint: Ensure your Atlas Network Access includes 0.0.0.0/0 or Render IPs.');
+  }
+};
+
+// Retry with exponential backoff so deploys are resilient to temporary Atlas lag
+let mongoConnectAttempt = 0;
+const connectWithRetry = async () => {
+  mongoConnectAttempt += 1;
+  try {
+    console.log(`Connecting to MongoDB at ${redactMongoUri(MONGODB_URI)} (attempt ${mongoConnectAttempt})`);
+    await mongoose.connect(MONGODB_URI, mongooseOptions);
+    console.log('Connected to MongoDB');
+  } catch (err) {
+    lastDbError = err?.message || String(err);
+    console.error('Could not connect to MongoDB:', err?.message || err);
+    classifyAndHint(err);
+    const delay = Math.min(30000, 1000 * 2 ** Math.min(mongoConnectAttempt, 5));
+    console.log(`Retrying MongoDB connection in ${Math.round(delay / 1000)}s...`);
+    setTimeout(connectWithRetry, delay);
+  }
+};
+
+connectWithRetry();
 
 /**
  * Rating Schema and Model
@@ -156,6 +208,17 @@ app.use((err, req, res, next) => {
 // Catch-all for unmatched API routes
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
+});
+
+// Debug endpoint for connection status (do not expose in production without auth)
+app.get('/debug/db-status', (req, res) => {
+  res.json({
+    readyState: mongoose.connection.readyState, // 0 disconnected, 1 connected
+    attempts: mongoConnectAttempt,
+    lastError: lastDbError,
+    host: mongoose.connection.host,
+    name: mongoose.connection.name,
+  });
 });
 
 // All other requests return the React app (for client-side routing)

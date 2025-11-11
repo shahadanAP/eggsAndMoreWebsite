@@ -34,8 +34,20 @@ if (isProd) {
 // Middleware
 app.use(express.json());
 
-// Serve static files from React app (pointing to the build folder)
-app.use(express.static(path.join(__dirname, '../build')));
+// Serve static files from React app (pointing to the build folder) if present
+const buildDir = path.join(__dirname, '../build');
+app.use((req, res, next) => {
+  try {
+    // Only mount static middleware if build exists to avoid ENOENT
+    if (require('fs').existsSync(buildDir)) {
+      express.static(buildDir)(req, res, next);
+    } else {
+      next();
+    }
+  } catch {
+    next();
+  }
+});
 
 // Health check
 app.get('/health', (req, res) => res.status(200).send('ok'));
@@ -221,9 +233,16 @@ app.get('/debug/db-status', (req, res) => {
   });
 });
 
-// All other requests return the React app (for client-side routing)
+// All other requests return the React app (for client-side routing) if available
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, '../build', 'index.html'));
+  const indexPath = path.join(buildDir, 'index.html');
+  try {
+    if (require('fs').existsSync(indexPath)) {
+      return res.sendFile(indexPath);
+    }
+  } catch {}
+  // If no build exists, indicate API is running
+  res.status(200).json({ status: 'ok', message: 'Backend running (no frontend build found)' });
 });
 
 // Start server

@@ -153,13 +153,13 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
+// Catch-all for unmatched API routes
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'API endpoint not found' });
+});
+
 // All other requests return the React app (for client-side routing)
-app.get('*', (req, res) => {
-  // If it's an API request that wasn't matched, return 404 JSON
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ error: 'API endpoint not found' });
-  }
-  // Otherwise serve the React app
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 

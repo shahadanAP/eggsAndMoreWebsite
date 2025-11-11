@@ -69,6 +69,16 @@ const Rating = mongoose.model('Rating', ratingSchema);
  * Routes
  */
 
+// All ratings (admin) - MUST come before parameterized routes
+app.get('/api/ratings', async (req, res) => {
+  try {
+    const allRatings = await Rating.find({});
+    res.json(allRatings);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Create or update rating
 app.post('/api/ratings', async (req, res) => {
   try {
@@ -100,6 +110,29 @@ app.post('/api/ratings', async (req, res) => {
   }
 });
 
+// All ratings for a dish (admin)
+app.get('/api/ratings-details/:dishName', async (req, res) => {
+  try {
+    const dishName = decodeURIComponent(req.params.dishName);
+    const ratings = await Rating.find({ dishName }).sort({ updatedAt: -1 });
+    res.json({ ratings });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Check if a user already rated a dish - MUST come before single param route
+app.get('/api/ratings/:dishName/:userIdentifier', async (req, res) => {
+  try {
+    const dishName = decodeURIComponent(req.params.dishName);
+    const { userIdentifier } = req.params;
+    const existingRating = await Rating.findOne({ dishName, userIdentifier });
+    res.json({ exists: !!existingRating, rating: existingRating });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get average rating & count for a dish
 app.get('/api/ratings/:dishName', async (req, res) => {
   try {
@@ -114,47 +147,15 @@ app.get('/api/ratings/:dishName', async (req, res) => {
   }
 });
 
-// Check if a user already rated a dish
-app.get('/api/ratings/:dishName/:userIdentifier', async (req, res) => {
-  try {
-    const dishName = decodeURIComponent(req.params.dishName);
-    const { userIdentifier } = req.params;
-    const existingRating = await Rating.findOne({ dishName, userIdentifier });
-    res.json({ exists: !!existingRating, rating: existingRating });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// API 404 handler - must come after all API routes
+app.all('/api/*', (req, res) => {
+  res.status(404).json({ error: 'API endpoint not found' });
 });
 
-// All ratings for a dish (admin)
-app.get('/api/ratings-details/:dishName', async (req, res) => {
-  try {
-    const dishName = decodeURIComponent(req.params.dishName);
-    const ratings = await Rating.find({ dishName }).sort({ updatedAt: -1 });
-    res.json({ ratings });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// All ratings (admin)
-app.get('/api/ratings', async (req, res) => {
-  try {
-    const allRatings = await Rating.find({});
-    res.json(allRatings);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
+// Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Internal server error' });
-});
-
-// API 404 handler
-app.use('/api/*', (req, res) => {
-  res.status(404).json({ error: 'API endpoint not found' });
 });
 
 // All other requests return the React app (for client-side routing)

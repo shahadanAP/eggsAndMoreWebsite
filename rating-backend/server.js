@@ -147,11 +147,6 @@ app.get('/api/ratings/:dishName', async (req, res) => {
   }
 });
 
-// API 404 handler - must come after all API routes
-app.all('/api/*', (req, res) => {
-  res.status(404).json({ error: 'API endpoint not found' });
-});
-
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -160,6 +155,11 @@ app.use((err, req, res, next) => {
 
 // All other requests return the React app (for client-side routing)
 app.get('*', (req, res) => {
+  // If it's an API request that wasn't matched, return 404 JSON
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  // Otherwise serve the React app
   res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 

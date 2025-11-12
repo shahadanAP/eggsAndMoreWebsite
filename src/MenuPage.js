@@ -3,9 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
 
+// Resolve API base URL from environment
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 export default function MenuPage() {
   const navigate = useNavigate();
-  const [activeMenu, setActiveMenu] = useState('Breakfast');
+  const [activeMenu, setActiveMenu] = useState('breakfast');
   const [activeCategory, setActiveCategory] = useState('');
   const [dishRatings, setDishRatings] = useState({});
   const [loadingRatings, setLoadingRatings] = useState(true);
@@ -15,7 +18,7 @@ export default function MenuPage() {
     const fetchRatings = async () => {
       try {
         setLoadingRatings(true);
-        const response = await axios.get('http://localhost:5000/api/ratings');
+        const response = await axios.get(`${API_BASE}/api/ratings`);
         
         const ratingsMap = {};
         response.data.forEach(rating => {
@@ -83,7 +86,7 @@ export default function MenuPage() {
 
   // Menu data (same as before)
    const menuData = {
-    Breakfast: {
+    breakfast: {
     'Eggs Eggs Eggs': [
       { name: '2 Eggs Combo', description: '', price: '14.99' },
       { name: 'Touch and Go', description: '1 egg with choice of 2 beef strips or 2 beef sausage', price: '14.99' },
@@ -159,7 +162,7 @@ export default function MenuPage() {
     },
 
 
-    Main: {
+    main: {
     'Appetizers': [
     { name: 'Cheesy Garlic Toast (2 Slices)', description: '', price: '7.99' },
     { name: 'Samosa (4 Pieces)', description: 'Potato and peas, served with ketchup and green chutney', price: '6.99' },
@@ -400,36 +403,36 @@ export default function MenuPage() {
         <section className="menu-selection">
           <div className="menu-options">
             <button 
-              className={`menu-option ${activeMenu === 'Breakfast' ? 'active' : ''}`}
+              className={`menu-option ${activeMenu === 'breakfast' ? 'active' : ''}`}
               onClick={() => {
-                setActiveMenu('Breakfast');
+                setActiveMenu('breakfast');
                 setActiveCategory('');
               }}
             >
               Breakfast & Brunch
             </button>
             <button 
-              className={`menu-option ${activeMenu === 'Main' ? 'active' : ''}`}
+              className={`menu-option ${activeMenu === 'main' ? 'active' : ''}`}
               onClick={() => {
-                setActiveMenu('Main');
+                setActiveMenu('main');
                 setActiveCategory('');
               }}
             >
               Main Menu
             </button>
             <button 
-              className={`menu-option ${activeMenu === 'Drinks' ? 'active' : ''}`}
+              className={`menu-option ${activeMenu === 'drinks' ? 'active' : ''}`}
               onClick={() => {
-                setActiveMenu('Drinks');
+                setActiveMenu('drinks');
                 setActiveCategory('');
               }}
             >
               Drinks
             </button>
             <button
-              className={`menu-option ${activeMenu === 'Eastern' ? 'active' : ''}`}
+              className={`menu-option ${activeMenu === 'eastern' ? 'active' : ''}`}
               onClick={() => {
-                setActiveMenu('Eastern');
+                setActiveMenu('eastern');
                 setActiveCategory('');
               }}
             >

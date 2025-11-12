@@ -51,11 +51,16 @@ app.use((req, res, next) => {
 
 // Health check
 app.get('/health', (req, res) => res.status(200).send('ok'));
+// Render default health check alias
+app.get('/healthz', (req, res) => res.status(200).send('ok'));
 
 /**
  * Database Connection
  */
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/restaurant-ratings';
+if (isProd && !process.env.MONGODB_URI) {
+  console.warn('[WARN] MONGODB_URI is NOT set in production. Falling back to local MongoDB URI. Set MONGODB_URI in the service environment variables or link an environment group.');
+}
 
 // Sanitize URI for logs (hide password)
 const redactMongoUri = (uri) => {

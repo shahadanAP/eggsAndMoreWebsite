@@ -4,6 +4,9 @@ import menuData from './menuData';
 import axios from 'axios';
 import './App.css';
 
+// Resolve API base URL from environment, with a sensible local fallback for development
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 function RatingPage() {
   const { menuType, category, itemName } = useParams();
   const [rating, setRating] = useState(0);
@@ -40,13 +43,13 @@ function RatingPage() {
         
         // Get average rating
         const avgResponse = await axios.get(
-          `http://localhost:5000/api/ratings/${encodeURIComponent(decodedItemName)}`
+          `${API_BASE}/api/ratings/${encodeURIComponent(decodedItemName)}`
         );
         setAverageRating(avgResponse.data.average);
         
         // Check if user already rated
         const existingResponse = await axios.get(
-          `http://localhost:5000/api/ratings/${encodeURIComponent(decodedItemName)}/${getUserIdentifier()}`
+          `${API_BASE}/api/ratings/${encodeURIComponent(decodedItemName)}/${getUserIdentifier()}`
         );
         
         if (existingResponse.data.exists) {
@@ -82,7 +85,7 @@ function RatingPage() {
   const handleSubmitRating = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.post('http://localhost:5000/api/ratings', {
+      const response = await axios.post(`${API_BASE}/api/ratings`, {
         dishName: decodedItemName,
         rating,
         feedback,

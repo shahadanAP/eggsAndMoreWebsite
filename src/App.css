@@ -1875,6 +1875,25 @@ a {
   background: #0a2a0f;
 }
 
+/* Rating Page - Mobile enhancements */
+@media (max-width: 600px) {
+  .rating-page {
+    padding: 1rem;
+    margin: 1rem;
+  }
+  .rating-stars {
+    gap: 0.6rem;
+  }
+  .rating-stars button {
+    width: 48px;
+    height: 48px;
+    font-size: 1.1rem;
+  }
+  .feedback-section {
+    margin: 1.5rem 0;
+  }
+}
+
 /* Menu Item Link Styles */
 .menu-item-link {
   text-decoration: none;

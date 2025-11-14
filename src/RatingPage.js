@@ -17,6 +17,9 @@ function RatingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [existingRating, setExistingRating] = useState(null);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [showAllFeedback, setShowAllFeedback] = useState(false);
 
   // Decode the item name from URL
   const decodedItemName = decodeURIComponent(itemName);
@@ -71,6 +74,26 @@ function RatingPage() {
     fetchData();
   }, [decodedItemName]);
 
+  // Fetch recent/all feedback for this dish
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        setFeedbackLoading(true);
+        const detailsRes = await axios.get(
+          `${API_BASE}/api/ratings-details/${encodeURIComponent(decodedItemName)}`
+        );
+        // Already sorted by updatedAt desc on backend
+        setFeedbacks(detailsRes.data.ratings || []);
+      } catch (err) {
+        console.error('Failed to load feedback list:', err);
+      } finally {
+        setFeedbackLoading(false);
+      }
+    };
+
+    fetchDetails();
+  }, [decodedItemName]);
+
   if (!item) {
     return (
       <div className="error-message" style={{ textAlign: 'center', padding: '2rem' }}>
@@ -96,6 +119,13 @@ function RatingPage() {
       setHasRated(true);
       setExistingRating({ rating, feedback });
       setError(null);
+      // Refresh feedbacks after submit/update
+      try {
+        const detailsRes = await axios.get(
+          `${API_BASE}/api/ratings-details/${encodeURIComponent(decodedItemName)}`
+        );
+        setFeedbacks(detailsRes.data.ratings || []);
+      } catch {}
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to submit rating. Please try again.');
       console.error('Error submitting rating:', err);
@@ -164,6 +194,73 @@ function RatingPage() {
             {error}
           </div>
         )}
+
+        {/* Recent Feedback Section */}
+        <div className="feedback-section" style={{ maxWidth: '800px', margin: '0 auto 2rem' }}>
+          <h3 style={{ color: 'var(--accent-color)', marginBottom: '0.75rem', textAlign: 'center' }}>
+            Recent customer feedback
+          </h3>
+          {feedbackLoading ? (
+            <div style={{ textAlign: 'center', color: 'var(--text-color)' }}>Loading feedback…</div>
+          ) : feedbacks.length === 0 ? (
+            <div style={{ textAlign: 'center', color: 'var(--text-color)' }}>No feedback yet</div>
+          ) : (
+            <>
+              {(() => {
+                const nonEmpty = feedbacks.filter(f => (f.feedback || '').trim().length > 0);
+                const toShow = (showAllFeedback ? feedbacks : (nonEmpty.length ? nonEmpty : feedbacks)).slice(0, showAllFeedback ? feedbacks.length : 3);
+                const renderStars = (val) => (
+                  <span>
+                    {[1,2,3,4,5].map(i => (
+                      <span key={i} style={{ color: i <= val ? 'goldenrod' : '#ccc' }}>★</span>
+                    ))}
+                  </span>
+                );
+                return (
+                  <div>
+                    {toShow.map((r, idx) => (
+                      <div key={r._id || idx} style={{
+                        background: 'white',
+                        borderRadius: '8px',
+                        padding: '1rem',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                        marginBottom: '0.75rem'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ fontWeight: 600, color: 'var(--accent-color)' }}>
+                            {renderStars(r.rating)} <span style={{ marginLeft: 8, color: 'var(--text-color)' }}>({r.rating}/5)</span>
+                          </div>
+                          <div style={{ color: '#777', fontSize: 12 }}>
+                            {r.updatedAt ? new Date(r.updatedAt).toLocaleString() : ''}
+                          </div>
+                        </div>
+                        <div style={{ marginTop: '0.5rem', color: 'var(--text-color)' }}>
+                          {(r.feedback && r.feedback.trim()) ? r.feedback : <em>No comment provided</em>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+              <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+                <button
+                  onClick={() => setShowAllFeedback(v => !v)}
+                  style={{
+                    padding: '0.6rem 1.2rem',
+                    background: 'transparent',
+                    border: '2px solid var(--accent-color)',
+                    color: 'var(--accent-color)',
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    fontWeight: 600
+                  }}
+                >
+                  {showAllFeedback ? 'Show less' : 'View all feedback'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
 
         {hasRated ? (
           <div className="thank-you-message" style={{ 
@@ -257,8 +354,6 @@ function RatingPage() {
                   onMouseEnter={() => setHoverRating(star)}
                   onMouseLeave={() => setHoverRating(0)}
                   style={{
-                    width: '40px',
-                    height: '40px',
                     borderRadius: '50%',
                     border: '2px solid var(--accent-color)',
                     background: (hoverRating >= star || rating >= star) ? 'var(--accent-color)' : 'white',

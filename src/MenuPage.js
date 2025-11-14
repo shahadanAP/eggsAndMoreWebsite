@@ -248,7 +248,7 @@ export default function MenuPage() {
     ]
     },
 
-    Drinks: {
+    drinks: {
     'Drinks': [
       { name: 'Coffee (bottomless)', description: '', price: '3.99' },
       { name: 'Hot Tea', description: '', price: '3.99' },
@@ -276,7 +276,7 @@ export default function MenuPage() {
     ]
   },
 
-   Eastern: {
+   eastern: {
       'Combos': [
         { name: 'Halwapuri', description: '(3 puri, channa, potato curry)', price: '13.99' },
         { name: 'Cholle Bhature', description: '(2 bhaturay with channa, pickle & salad)', price: '14.99' },

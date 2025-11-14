@@ -187,7 +187,125 @@ const menuData = {
       { name: 'Milkshakes (topped with whipped cream)', description: 'Strawberry | Banana | Oreo | Chocolate | Chocolate Peanut Butter', price: '7.99' },
       { name: 'Smoothies', description: 'Strawberry', price: '7.99' }
     ]
+  },
+
+    eastern: {
+    'Combos': [
+      { name: 'Halwapuri', description: '(3 puri, channa, potato curry)', price: '13.99' },
+      { name: 'Cholle Bhature', description: '(2 bhaturay with channa, pickle & salad)', price: '14.99' },
+      { name: 'Sarsoon Saag with Makki Rotti and Butter', description: '(winter only)', price: '18.99' },
+      { name: 'Missi Rotti Combo', description: '(2 rotti + makhan + sweet or salty lassi)', price: '18.99' }
+    ],
+
+    'Meat and Veggie Curries': [
+      { name: 'Channa Massala', description: '', price: '14.99' },
+      { name: 'Potato Curry', description: '', price: '11.99' },
+      { name: 'Halwa', description: '', price: '11.99' },
+      { name: 'Dum Qeema', description: '', price: '16.99' },
+      { name: 'Beef Paya', description: '', price: '18.99' },
+      { name: 'Beef Nihari', description: '', price: '19.99' },
+      { name: 'Goat Qorma', description: '', price: '19.99' },
+      { name: 'Chicken Badami Qorma', description: '', price: '16.99' },
+      { name: 'Saag with Makhan', description: '', price: '18.99' }
+    ],
+
+    'Desi Omelettes': [
+      { name: 'Half Fry / Sunny Side (2 eggs)', description: '', price: '4.99' },
+      { name: 'Scrambled Eggs', description: '', price: '6.99' },
+      { name: 'Desi Veggie Omelette', description: '', price: '9.99' },
+      { name: 'Cheese Omelette', description: '', price: '9.99' },
+      { name: 'Cheese & Veggie Omelette', description: '', price: '10.99' },
+      { name: 'Anda Tamatar Bhujiya', description: '', price: '13.99' }
+    ],
+
+    'Stuffed Parathas': [
+      { name: 'Meetha Paratha', description: '', price: '7.99' },
+      { name: 'Nutella Paratha', description: '', price: '7.99' },
+      { name: 'Sweet RC Special Paratha with Nuts', description: '', price: '10.99' },
+      { name: 'Aalu Paratha', description: '', price: '9.99' },
+      { name: 'Muli Paratha', description: '', price: '9.99' },
+      { name: 'Mix Veg + Paneer Paratha', description: '', price: '12.99' },
+      { name: 'Paneer Paratha', description: '', price: '10.99' },
+      { name: 'Chicken Tikka Paratha', description: '', price: '11.99' },
+      { name: 'Malai Chicken Paratha', description: '', price: '11.99' },
+      { name: 'Beef Qeema Paratha', description: '', price: '11.99' }
+    ],
+
+    'Parathas': [
+      { name: 'Tawa Paratha', description: '', price: '5.99' },
+      { name: 'Tandoori Paratha', description: '', price: '4.99' },
+      { name: 'Lacha Paratha', description: '', price: '6.99' }
+    ],
+
+    'Stuffed Naan': [
+      { name: 'Cheesey Chicken Tikka Naan', description: '', price: '18.00' },
+      { name: 'Cheesey Creamy Chicken Naan', description: '', price: '18.00' },
+      { name: 'Cheesey Qeema Naan', description: '', price: '18.00' },
+      { name: 'Sweet Shahi Naan', description: '', price: '18.00' },
+      { name: 'Cheesey Naan', description: '', price: '14.00' },
+      { name: 'Paneer Veggie Naan', description: '', price: '16.00' },
+      { name: 'Aloo + Cheesey Naan', description: '', price: '16.00' },
+      { name: 'Nutella Naan', description: '', price: '16.00' },
+      { name: 'Panze Classic Naan', description: '', price: '19.25' },
+      { name: 'Panze Hawaiian Naan', description: '', price: '19.25' },
+      { name: 'Panze Greco Naan', description: '', price: '19.25' }
+    ],
+
+    'Naan': [
+      { name: 'Plain Naan', description: '', price: '2.49' },
+      { name: 'Garlic Naan', description: '', price: '3.99' },
+      { name: 'Butter Naan', description: '', price: '3.49' },
+      { name: 'Sesame Naan', description: '', price: '3.99' },
+      { name: 'Kalonji Naan', description: '', price: '3.99' },
+      { name: 'Tandoori Naan', description: '', price: '3.99' },
+      { name: 'Butter Tandoori Naan', description: '', price: '3.99' }
+    ],
+
+    'Extras': [
+      { name: 'Puri', description: '', price: '2.99' },
+      { name: 'Bhatura', description: '', price: '4.49' },
+      { name: 'Extra Channa', description: '', price: '3.99' },
+      { name: 'Extra Halwa', description: '', price: '3.99' },
+      { name: 'Extra Potatoes', description: '', price: '3.99' },
+      { name: 'yogurt', description: '', price: '3.99' },
+      { name: 'Achaar', description: '', price: '1.99' },
+      { name: 'Raita', description: '', price: '1.99' },
+      { name: 'onion salad', description: '', price: '2.99' },
+      { name: 'Desi Gardern Salad', description: '', price: '5.99' }
+    ],
+
+    'Lassis': [
+      { name: 'Salty Lassi', description: '', price: '6.99' },
+      { name: 'Sweet Lassi', description: '', price: '6.99' },
+      { name: 'Mango Lassi', description: '', price: '7.99' }
+    ],
+
+    'Shakes': [
+      {
+        name: 'Milkshakes',
+        description: 'topped with whipped cream (Strawberry | Banana | Oreo | Chocolate | Peanut Butter)',
+        price: '7.99'
+      }
+    ],
+
+    'Smoothies': [
+      { name: 'Strawberry Smoothie', description: '', price: '7.99' }
+    ],
+
+    'Hot Drinks': [
+      { name: 'Pakistani Chai', description: '', price: '4.99' },
+      { name: 'Pakistani Coffee', description: '', price: '5.99' },
+      { name: 'Kashmiri Chai', description: '', price: '5.99' }
+    ],
+
+    'Summer Blast Drinks': [
+      { name: 'Berry Blast', description: '', price: '8.99' },
+      { name: 'Lemonade', description: '', price: '8.99' },
+      { name: 'Strawberry Mojito', description: '', price: '8.99' },
+      { name: 'Mint Margarita', description: '', price: '8.99' },
+    ]
   }
+
   };
   
   export default menuData;

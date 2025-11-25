@@ -5,7 +5,10 @@ import VideoPlayer from './VideoPlayer';
 import DroppingImage from './DroppingImage'; // Import the new component
 
 import logo from './assets/eggsandmore.svg';
-import heroImage from './assets/hero.png';
+import heroImage1 from './assets/heroImage1.jpg';
+import heroImage2 from './assets/heroImage2.jpg';
+import heroImage3 from './assets/heroImage3.jpg';
+import heroImage4 from './assets/heroImage4.jpg';
 import eggsBenedictImage from './assets/classicBennedictPic.png';
 import pancakesImage from './assets/steakOmeletPic.png';
 import omeletteImage from './assets/steakStripsAndOmlete.png';
@@ -42,12 +45,18 @@ const imagePaths = {
     dish3,
     dish4
   ],
+  heroImages: [
+    heroImage1,
+    heroImage2,
+    heroImage3,
+    heroImage4
+  ],
 };
 
 export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
-  const [currentHeroImage, setCurrentHeroImage] = useState(heroImage);
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -111,15 +120,13 @@ export default function HomePage() {
     const interval = setInterval(() => {
       setIsTransitioning(true);
       setTimeout(() => {
-        const nextIndex = dishes.findIndex(dish => dish.image === currentHeroImage) + 1;
-        const nextImage = nextIndex < dishes.length ? dishes[nextIndex].image : heroImage;
-        setCurrentHeroImage(nextImage);
+        setCurrentHeroIndex((prevIndex) => (prevIndex + 1) % imagePaths.heroImages.length);
         setIsTransitioning(false);
       }, 500);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [currentHeroImage]);
+  }, []);
 
   useEffect(() => {
     if (isCarouselAutoRotating) {
@@ -130,20 +137,16 @@ export default function HomePage() {
     }
   }, [isCarouselAutoRotating]);
 
-  const handleDishHover = (dishImage) => {
+  const handleDishHover = (index) => {
     setIsTransitioning(true);
     setTimeout(() => {
-      setCurrentHeroImage(dishImage);
+      setCurrentHeroIndex(index % imagePaths.heroImages.length);
       setIsTransitioning(false);
     }, 500);
   };
 
   const handleDishLeave = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentHeroImage(heroImage);
-      setIsTransitioning(false);
-    }, 500);
+    // No action needed - let the auto-rotation continue
   };
 
   const handleDotClick = (index) => {
@@ -181,7 +184,7 @@ export default function HomePage() {
         </div>
         <div className="hero-image">
           <img 
-            src={currentHeroImage} 
+            src={imagePaths.heroImages[currentHeroIndex]} 
             alt="Delicious breakfast" 
             style={{ 
               opacity: isTransitioning ? 0 : 1,
@@ -284,13 +287,13 @@ export default function HomePage() {
         <h2 className="section-title">Featured Dishes</h2>
         
         <div className="features">
-          {dishes.map((dish) => (
+          {dishes.map((dish, index) => (
             <div 
               key={dish.id}
               className="feature-card"
-              onMouseEnter={() => handleDishHover(dish.image)}
+              onMouseEnter={() => handleDishHover(index)}
               onMouseLeave={handleDishLeave}
-              onClick={() => handleDishHover(dish.image)}
+              onClick={() => handleDishHover(index)}
             >
               <img 
                 src={dish.thumbnail} 

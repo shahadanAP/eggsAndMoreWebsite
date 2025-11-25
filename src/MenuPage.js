@@ -13,6 +13,16 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState('');
   const [dishRatings, setDishRatings] = useState({});
   const [loadingRatings, setLoadingRatings] = useState(true);
+  const [scrollY, setScrollY] = useState(0);
+
+  // Parallax scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Fetch all ratings from backend
   useEffect(() => {
@@ -89,6 +99,34 @@ export default function MenuPage() {
 
   return (
     <div className="menu-page">
+      {/* Parallax Background Decorations */}
+      <div className="menu-bg-decorations">
+        <div 
+          className="menu-bg-shape menu-bg-circle-1" 
+          style={{ transform: `translateY(${scrollY * 0.05}px)` }}
+        />
+        <div 
+          className="menu-bg-shape menu-bg-circle-2" 
+          style={{ transform: `translateY(${scrollY * -0.03}px)` }}
+        />
+        <div 
+          className="menu-bg-shape menu-bg-leaf-1" 
+          style={{ transform: `translateY(${scrollY * 0.08}px) rotate(${scrollY * 0.02}deg)` }}
+        />
+        <div 
+          className="menu-bg-shape menu-bg-leaf-2" 
+          style={{ transform: `translateY(${scrollY * -0.06}px) rotate(${-scrollY * 0.015}deg)` }}
+        />
+        <div 
+          className="menu-bg-shape menu-bg-dots" 
+          style={{ transform: `translateY(${scrollY * 0.04}px)` }}
+        />
+        <div 
+          className="menu-bg-shape menu-bg-ring" 
+          style={{ transform: `translateY(${scrollY * -0.02}px)` }}
+        />
+      </div>
+
       <main className="menu-content">
         {/* Header Section */}
         <section className="menu-header">

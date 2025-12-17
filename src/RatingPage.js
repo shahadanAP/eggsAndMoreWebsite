@@ -34,9 +34,17 @@ function RatingPage() {
     return identifier;
   };
 
-  // Find the menu item
+  // Find the menu item - handle both regular arrays and special sections
   const categoryItems = menuData[menuType]?.[category];
-  const item = categoryItems?.find(item => item.name === decodedItemName);
+  let item = null;
+  
+  if (categoryItems?.isSpecialSection) {
+    // Special section - search in specialItems array
+    item = categoryItems.specialItems?.find(item => item.name === decodedItemName);
+  } else if (Array.isArray(categoryItems)) {
+    // Regular category array
+    item = categoryItems.find(item => item.name === decodedItemName);
+  }
 
   // Fetch average rating and check for existing rating
   useEffect(() => {

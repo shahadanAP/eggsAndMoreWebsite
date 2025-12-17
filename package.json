@@ -27,7 +27,8 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "pdfjs-dist": "^5.4.449"
   },
   "eslintConfig": {
     "extends": [

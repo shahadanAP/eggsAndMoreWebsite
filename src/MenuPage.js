@@ -194,52 +194,160 @@ export default function MenuPage() {
         <div className="menu-items-container">
           {activeCategory ? (
             <div className="menu-category">
-              <h2>{activeCategory}</h2>
-              <div className="items-grid">
-                {menuData[activeMenu][activeCategory].map((item, index) => (
-                  <div 
-                    key={index} 
-                    className="menu-item"
-                    onClick={() => navigate(`/menu/rate/${activeMenu}/${activeCategory}/${encodeURIComponent(item.name)}`)}
-                  >
-                    <div className="item-image-placeholder">
-                      [Image]
+              {/* Check if this is a special section */}
+              {menuData[activeMenu][activeCategory]?.isSpecialSection ? (
+                <div className="special-section">
+                  <div className="special-section-header">
+                    <div className="special-header-title">
+                      <h2>{activeCategory}</h2>
+                      <span className="header-price">${menuData[activeMenu][activeCategory].headerPrice}</span>
                     </div>
-                    <h3>{item.name}</h3>
-                    {item.description && <p>{item.description}</p>}
-                    <div className="price-rating-container">
-                      <div className="price">${item.price}</div>
-                      {renderRating(item.name)}
-                    </div>
+                    {menuData[activeMenu][activeCategory].headerNote && (
+                      <p className="header-note">{menuData[activeMenu][activeCategory].headerNote}</p>
+                    )}
+                    {menuData[activeMenu][activeCategory].headerDescription && (
+                      <p className="header-description">{menuData[activeMenu][activeCategory].headerDescription}</p>
+                    )}
                   </div>
-                ))}
-              </div>
+                  
+                  {/* Side Options Grid */}
+                  {menuData[activeMenu][activeCategory].sideOptions && (
+                    <div className="side-options-grid">
+                      {menuData[activeMenu][activeCategory].sideOptions.map((option, index) => (
+                        <div key={index} className="side-option">
+                          <span className="option-name">{option.name}</span>
+                          {option.surcharge && <span className="option-surcharge">{option.surcharge}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Special Items */}
+                  {menuData[activeMenu][activeCategory].specialItems && (
+                    <div className="items-grid special-items">
+                      {menuData[activeMenu][activeCategory].specialItems.map((item, index) => (
+                        <div 
+                          key={index} 
+                          className="menu-item special-item"
+                          onClick={() => navigate(`/menu/rate/${activeMenu}/${activeCategory}/${encodeURIComponent(item.name)}`)}
+                        >
+                          <div className="special-item-header">
+                            <h3>{item.name}</h3>
+                            <div className="price">${item.price}</div>
+                          </div>
+                          {item.description && <p>{item.description}</p>}
+                          {renderRating(item.name)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <h2>{activeCategory}</h2>
+                  <div className="items-grid">
+                    {menuData[activeMenu][activeCategory].map((item, index) => (
+                      <div 
+                        key={index} 
+                        className="menu-item"
+                        onClick={() => navigate(`/menu/rate/${activeMenu}/${activeCategory}/${encodeURIComponent(item.name)}`)}
+                      >
+                        <div className="item-image-placeholder">
+                          [Image]
+                        </div>
+                        <h3>{item.name}</h3>
+                        {item.description && <p>{item.description}</p>}
+                        <div className="price-rating-container">
+                          <div className="price">${item.price}</div>
+                          {renderRating(item.name)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           ) : (
-            Object.keys(menuData[activeMenu]).map(category => (
-              <div key={category} className="menu-category">
-                <h2>{category}</h2>
-                <div className="items-grid">
-                  {menuData[activeMenu][category].map((item, index) => (
-                    <div 
-                      key={index} 
-                      className="menu-item"
-                      onClick={() => navigate(`/menu/rate/${activeMenu}/${category}/${encodeURIComponent(item.name)}`)}
-                    >
-                      <div className="item-image-placeholder">
-                        [Image]
+            Object.keys(menuData[activeMenu]).map(category => {
+              const categoryData = menuData[activeMenu][category];
+              const isSpecial = categoryData?.isSpecialSection;
+              
+              return (
+                <div key={category} className="menu-category">
+                  {isSpecial ? (
+                    <div className="special-section">
+                      <div className="special-section-header">
+                        <div className="special-header-title">
+                          <h2>{category}</h2>
+                          <span className="header-price">${categoryData.headerPrice}</span>
+                        </div>
+                        {categoryData.headerNote && (
+                          <p className="header-note">{categoryData.headerNote}</p>
+                        )}
+                        {categoryData.headerDescription && (
+                          <p className="header-description">{categoryData.headerDescription}</p>
+                        )}
                       </div>
-                      <h3>{item.name}</h3>
-                      {item.description && <p>{item.description}</p>}
-                      <div className="price-rating-container">
-                        <div className="price">${item.price}</div>
-                        {renderRating(item.name)}
-                      </div>
+                      
+                      {/* Side Options Grid */}
+                      {categoryData.sideOptions && (
+                        <div className="side-options-grid">
+                          {categoryData.sideOptions.map((option, index) => (
+                            <div key={index} className="side-option">
+                              <span className="option-name">{option.name}</span>
+                              {option.surcharge && <span className="option-surcharge">{option.surcharge}</span>}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Special Items */}
+                      {categoryData.specialItems && (
+                        <div className="items-grid special-items">
+                          {categoryData.specialItems.map((item, index) => (
+                            <div 
+                              key={index} 
+                              className="menu-item special-item"
+                              onClick={() => navigate(`/menu/rate/${activeMenu}/${category}/${encodeURIComponent(item.name)}`)}
+                            >
+                              <div className="special-item-header">
+                                <h3>{item.name}</h3>
+                                <div className="price">${item.price}</div>
+                              </div>
+                              {item.description && <p>{item.description}</p>}
+                              {renderRating(item.name)}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  ))}
+                  ) : (
+                    <>
+                      <h2>{category}</h2>
+                      <div className="items-grid">
+                        {categoryData.map((item, index) => (
+                          <div 
+                            key={index} 
+                            className="menu-item"
+                            onClick={() => navigate(`/menu/rate/${activeMenu}/${category}/${encodeURIComponent(item.name)}`)}
+                          >
+                            <div className="item-image-placeholder">
+                              [Image]
+                            </div>
+                            <h3>{item.name}</h3>
+                            {item.description && <p>{item.description}</p>}
+                            <div className="price-rating-container">
+                              <div className="price">${item.price}</div>
+                              {renderRating(item.name)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </main>

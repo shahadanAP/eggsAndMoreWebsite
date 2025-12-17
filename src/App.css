@@ -1499,6 +1499,153 @@ a {
 }
 
 /* =====================================================
+   EM's Build Your Own Breakfast - Special Section
+===================================================== */
+.special-section {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--space-lg);
+}
+
+.special-section-header {
+  text-align: center;
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-md);
+  border-bottom: 2px solid var(--color-cream-dark);
+}
+
+.special-header-title {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.special-header-title h2 {
+  color: var(--color-primary);
+  font-size: 2rem;
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.header-price {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.header-note {
+  color: var(--color-text-light);
+  font-style: italic;
+  font-size: 0.95rem;
+  margin-top: var(--space-xs);
+}
+
+.header-description {
+  font-size: 1.05rem;
+  color: var(--color-text);
+  margin-top: var(--space-sm);
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+/* Side Options Grid */
+.side-options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm);
+  margin: var(--space-md) 0;
+  padding: var(--space-md);
+  background: var(--color-cream);
+  border-radius: var(--radius-md);
+}
+
+.side-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-xs);
+  text-align: center;
+}
+
+.option-name {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.option-surcharge {
+  font-size: 0.85rem;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Special Items */
+.special-items {
+  margin-top: var(--space-md);
+}
+
+.special-item {
+  text-align: left;
+}
+
+.special-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-xs);
+}
+
+.special-item h3 {
+  color: var(--color-primary);
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.special-item .price {
+  font-size: 1.3rem;
+  white-space: nowrap;
+}
+
+.special-item p {
+  text-align: left;
+  margin-bottom: var(--space-sm);
+}
+
+/* Responsive adjustments for special section */
+@media (max-width: 768px) {
+  .side-options-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .special-header-title {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  
+  .special-item-header {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .side-options-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .special-section {
+    padding: var(--space-md);
+  }
+}
+
+/* =====================================================
    Rating Page
 ===================================================== */
 .rating-page {

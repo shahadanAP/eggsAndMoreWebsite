@@ -406,7 +406,7 @@ a {
 }
 
 .hero-image {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -463,11 +463,14 @@ a {
     width: 100%;
     max-width: 400px;
     height: 300px;
+    overflow: hidden;
   }
 
   .hero-image img.hero-slide {
     width: 100%;
     max-width: 400px;
+    height: 100%;
+    object-fit: cover;
   }
   
   .hero-text .store-hours-compact {
@@ -482,52 +485,62 @@ a {
     gap: var(--space-sm);
   }
   
-  .hero-text h1 {
-    font-size: 2rem;
-    line-height: 1.1;
-  }
-  
-  .title-line {
-    font-size: 2rem;
-  }
-  
-  .hero-text p {
-    font-size: 1rem;
-    margin-bottom: var(--space-sm);
-  }
-  
   .hero-image {
-    max-width: 280px;
+    max-width: 85%;
+    width: 85%;
     height: 200px;
+    margin-bottom: var(--space-sm);
+    overflow: hidden;
   }
   
   .hero-image img.hero-slide {
-    width: 280px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .hero-text h1 {
+    font-size: 1.6rem;
+    line-height: 1.15;
+    margin-bottom: var(--space-xs);
+  }
+  
+  .title-line {
+    font-size: 1.6rem;
+  }
+  
+  .hero-text p {
+    font-size: 0.85rem;
+    margin-bottom: var(--space-xs);
+    line-height: 1.4;
   }
   
   .hero-buttons {
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
   
-  .hero-buttons .btn {
-    padding: 0.75rem 1.25rem;
-    font-size: 0.9rem;
+  .hero-buttons .btn,
+  .hero-buttons .nav-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
   }
   
   .hero-text .store-hours-compact {
     flex-direction: column;
     align-items: center;
     width: 100%;
+    padding: var(--space-xs);
+    margin: var(--space-xs) 0;
+    gap: 0.5rem;
   }
   
   .hero-text .status-badge {
-    width: 100%;
-    justify-content: center;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.75rem;
   }
   
   .hero-text .hours-quick {
-    width: 100%;
-    justify-content: center;
+    font-size: 0.8rem;
   }
 }
 
@@ -535,29 +548,51 @@ a {
   .hero-container {
     padding: var(--space-xs) 4%;
     min-height: auto;
+    gap: var(--space-xs);
+  }
+  
+  .hero-image {
+    max-width: 90%;
+    width: 90%;
+    height: 180px;
+    margin-bottom: var(--space-xs);
+    overflow: hidden;
+  }
+  
+  .hero-image img.hero-slide {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   
   .hero-text h1,
   .title-line {
-    font-size: 1.75rem;
+    font-size: 1.4rem;
   }
   
   .hero-text p {
-    font-size: 0.9rem;
+    font-size: 0.75rem;
   }
   
-  .hero-image {
-    max-width: 240px;
-    height: 170px;
+  .hero-buttons .btn,
+  .hero-buttons .nav-button {
+    padding: 0.4rem 0.875rem;
+    font-size: 0.75rem;
   }
   
-  .hero-image img.hero-slide {
-    width: 240px;
+  .hero-text .store-hours-compact {
+    padding: 0.4rem 0.6rem;
+    margin: 0.4rem 0;
+    gap: 0.35rem;
   }
   
-  .hero-buttons .btn {
-    padding: 0.625rem 1rem;
-    font-size: 0.85rem;
+  .hero-text .status-badge {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+  }
+  
+  .hero-text .hours-quick {
+    font-size: 0.75rem;
   }
 }
 

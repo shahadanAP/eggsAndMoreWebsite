@@ -2,16 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './App.css';
 import VideoPlayer from './VideoPlayer';
-import DroppingImage from './DroppingImage'; // Import the new component
+import DroppingImage from './DroppingImage';
+import StoreHours from './StoreHours';
 
+// eslint-disable-next-line no-unused-vars
 import logo from './assets/eggsandmore.svg';
-import heroImage1 from './assets/heroImage1.jpg';
-import heroImage2 from './assets/heroImage2.jpg';
-import heroImage3 from './assets/heroImage3.jpg';
-import heroImage4 from './assets/heroImage4.jpg';
-import eggsBenedictImage from './assets/classicBennedictPic.png';
-import pancakesImage from './assets/steakOmeletPic.png';
-import omeletteImage from './assets/steakStripsAndOmlete.png';
+import heroImage1 from './assets/heroImage1.webp';
+import heroImage2 from './assets/heroImage2.webp';
+import heroImage3 from './assets/heroImage3.webp';
+import heroImage4 from './assets/heroImage4.webp';
+import nihariImage from './assets/nihari.webp';
+import steakAndEggsImage from './assets/steakAndEggs.webp';
+import smokedSalmonBenedictImage from './assets/smokedSalmonBennedict.webp';
+import beefSteakSkilletImage from './assets/beefSteakSkillet.webp';
+import halwapuriImage from './assets/halwapuri.webp';
+import beefPayaImage from './assets/beefPaya.webp';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebookF, faInstagram } from '@fortawesome/free-brands-svg-icons';
 
@@ -24,11 +29,11 @@ import emReview5 from './assets/emReview5.png';
 import emReview6 from './assets/emReview6.png';
 
 // Import dropping images
-import dish1 from './assets/dish1.png';
-import dish2 from './assets/dish2.png';
-import dish3 from './assets/dish3.png';
-import dish4 from './assets/dish4.png';
-import highTeaPlatter from './assets/highTeaPlatter.png';
+import dish1 from './assets/dish1.webp';
+import dish2 from './assets/dish2.webp';
+import dish3 from './assets/dish3.webp';
+import dish4 from './assets/dish4.jpg';
+import highTeaPlatter from './assets/highTeaPlatter.jpg';
 
 const imagePaths = {
   reviews: [
@@ -69,24 +74,45 @@ export default function HomePage() {
   const dishes = [
     {
       id: 1,
-      name: "Eggs Benedict",
-      description: "Perfectly poached eggs with rich hollandaise sauce",
-      image: eggsBenedictImage,
-      thumbnail: eggsBenedictImage
+      name: "Nihari",
+      description: "Slow-cooked beef stew with aromatic spices",
+      image: nihariImage,
+      thumbnail: nihariImage
     },
     {
       id: 2,
-      name: "Steak & Eggs",
+      name: "Steak And Eggs",
       description: "Premium steak paired with farm-fresh eggs",
-      image: pancakesImage,
-      thumbnail: pancakesImage
+      image: steakAndEggsImage,
+      thumbnail: steakAndEggsImage
     },
     {
       id: 3,
-      name: "Steak Strips & Eggs",
-      description: "Tender steak strips served with fluffy eggs",
-      image: omeletteImage,
-      thumbnail: omeletteImage
+      name: "Smoked Salmon Benedict",
+      description: "Slices of smoked salmon, spinach, English muffin, spicy tomato hollandaise",
+      image: smokedSalmonBenedictImage,
+      thumbnail: smokedSalmonBenedictImage
+    },
+    {
+      id: 4,
+      name: "Beef Steak Skillet",
+      description: "Steak strips, bell peppers, red onions, mushrooms, mozzarella cheese, green onions, tomatoes, kalbi sauce",
+      image: beefSteakSkilletImage,
+      thumbnail: beefSteakSkilletImage
+    },
+    {
+      id: 5,
+      name: "Halwapuri",
+      description: "3 puri, channa, potato curry",
+      image: halwapuriImage,
+      thumbnail: halwapuriImage
+    },
+    {
+      id: 6,
+      name: "Beef Paya",
+      description: "Traditional beef trotters curry",
+      image: beefPayaImage,
+      thumbnail: beefPayaImage
     }
   ];
 
@@ -118,11 +144,7 @@ export default function HomePage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setCurrentHeroIndex((prevIndex) => (prevIndex + 1) % imagePaths.heroImages.length);
-        setIsTransitioning(false);
-      }, 500);
+      setCurrentHeroIndex((prevIndex) => (prevIndex + 1) % imagePaths.heroImages.length);
     }, 5000);
 
     return () => clearInterval(interval);
@@ -138,11 +160,7 @@ export default function HomePage() {
   }, [isCarouselAutoRotating]);
 
   const handleDishHover = (index) => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentHeroIndex(index % imagePaths.heroImages.length);
-      setIsTransitioning(false);
-    }, 500);
+    setCurrentHeroIndex(index % imagePaths.heroImages.length);
   };
 
   const handleDishLeave = () => {
@@ -166,31 +184,40 @@ export default function HomePage() {
   };
 
   return (
-    <div className="app">
+    <div className="app" role="main">
       {/* Hero Section */}
-      <section className="hero-container">
+      <section className="hero-container" aria-labelledby="hero-heading">
         <div className="hero-text">
-          <h1>
+          <h1 id="hero-heading">
             <span className="title-line">Delicious</span>
             <span className="title-line">Breakfast</span>
             <span className="title-line">& Brunch</span>
           </h1>
           <p>Fresh ingredients, homemade recipes, served with love.</p>
+          
+          {/* Store Hours - Compact Display */}
+          <StoreHours variant="compact" />
+          
           <div className="hero-buttons">
-            <button onClick={() => navigate('/menu')} className="nav-button" style={{ fontWeight: '700' }}> 
+            <button 
+              onClick={() => navigate('/menu')} 
+              className="nav-button" 
+              style={{ fontWeight: '700' }}
+              aria-label="View our menu"
+            > 
               View Menu
             </button>
           </div>
         </div>
-        <div className="hero-image">
-          <img 
-            src={imagePaths.heroImages[currentHeroIndex]} 
-            alt="Delicious breakfast" 
-            style={{ 
-              opacity: isTransitioning ? 0 : 1,
-              transition: 'opacity 0.5s ease-in-out'
-            }} 
-          />
+        <div className="hero-image" aria-hidden="true">
+          {imagePaths.heroImages.map((image, index) => (
+            <img 
+              key={index}
+              src={image} 
+              alt=""
+              className={`hero-slide ${index === currentHeroIndex ? 'active' : ''}`}
+            />
+          ))}
         </div>
       </section>
 

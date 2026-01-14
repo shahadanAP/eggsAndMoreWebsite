@@ -93,7 +93,7 @@ const AboutPage = () => {
               ) : (
                 <div className="video-placeholder" onClick={handleVideoPlay}>
                   <img 
-                    src={require("./assets/dish1.png")} // Add your thumbnail image
+                    src={require("./assets/dish1.webp")} // Add your thumbnail image
                     alt="Play our kitchen video" 
                     className="video-thumbnail"
                   />

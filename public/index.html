@@ -1,18 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- In your HTML <head> -->
-    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@600;700&display=swap" rel="stylesheet">
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#ffffff" />
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-    <meta
-      name="description"
-      content="Eggs and More - Breakfast and Brunch Restaurant"
-    />
-    <title>Eggs & More</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#1a5336" />
+    
+    <!-- Primary SEO Meta Tags -->
+    <title>Eggs & More | Best Breakfast & Brunch Restaurant in Calgary NE</title>
+    <meta name="title" content="Eggs & More | Best Breakfast & Brunch Restaurant in Calgary NE" />
+    <meta name="description" content="Eggs & More serves fresh, homemade breakfast and brunch daily from 7 AM to 3 PM in Calgary NE. Eggs Benedict, Pancakes, Omelettes, Eastern cuisine & more. Order online or visit us at 5441 Falsbridge Dr NE." />
+    <meta name="keywords" content="breakfast Calgary, brunch Calgary NE, eggs benedict, pancakes, omelettes, halal breakfast, eastern food Calgary, family restaurant Calgary, best breakfast near me, eggs and more" />
+    <meta name="author" content="Eggs & More Restaurant" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="restaurant" />
+    <meta property="og:url" content="https://eggsandmore.ca/" />
+    <meta property="og:title" content="Eggs & More | Best Breakfast & Brunch in Calgary NE" />
+    <meta property="og:description" content="Fresh ingredients, homemade recipes, served with love. Join us daily 7 AM - 3 PM for the best breakfast experience in Calgary." />
+    <meta property="og:image" content="%PUBLIC_URL%/og-image.jpg" />
+    <meta property="og:locale" content="en_CA" />
+    <meta property="og:site_name" content="Eggs & More" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://eggsandmore.ca/" />
+    <meta property="twitter:title" content="Eggs & More | Best Breakfast & Brunch in Calgary NE" />
+    <meta property="twitter:description" content="Fresh ingredients, homemade recipes, served with love. Join us daily 7 AM - 3 PM." />
+    <meta property="twitter:image" content="%PUBLIC_URL%/og-image.jpg" />
+    
+    <!-- Geographic Tags -->
+    <meta name="geo.region" content="CA-AB" />
+    <meta name="geo.placename" content="Calgary" />
+    <meta name="geo.position" content="51.097561;-113.9576114" />
+    <meta name="ICBM" content="51.097561, -113.9576114" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Raleway:wght@600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://eggsandmore.ca/" />
+    
+    <!-- Structured Data - Local Business -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": "Eggs & More",
+      "image": "https://eggsandmore.ca/og-image.jpg",
+      "url": "https://eggsandmore.ca",
+      "telephone": "+1-403-280-9488",
+      "email": "contact@eggsandmorerajascuisine.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "5441 Falsbridge Dr NE",
+        "addressLocality": "Calgary",
+        "addressRegion": "AB",
+        "postalCode": "T3J 3E9",
+        "addressCountry": "CA"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 51.097561,
+        "longitude": -113.9576114
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+          "opens": "07:00",
+          "closes": "15:00"
+        }
+      ],
+      "servesCuisine": ["Breakfast", "Brunch", "Eastern", "American"],
+      "priceRange": "$$",
+      "paymentAccepted": "Cash, Credit Card, Debit Card",
+      "currenciesAccepted": "CAD",
+      "menu": "https://eggsandmore.ca/menu",
+      "acceptsReservations": "No",
+      "hasMenu": {
+        "@type": "Menu",
+        "hasMenuSection": [
+          {
+            "@type": "MenuSection",
+            "name": "Breakfast & Brunch",
+            "description": "Fresh eggs, pancakes, waffles, and more"
+          },
+          {
+            "@type": "MenuSection", 
+            "name": "Eastern Menu",
+            "description": "Authentic Eastern cuisine including parathas, curries, and naan"
+          }
+        ]
+      },
+      "sameAs": [
+        "https://www.facebook.com/EggsAndMoreCalgary/",
+        "https://www.instagram.com/eggsandmorene/"
+      ],
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.5",
+        "reviewCount": "200"
+      }
+    }
+    </script>
+    
+    <!-- Breadcrumb Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://eggsandmore.ca/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Menu",
+          "item": "https://eggsandmore.ca/menu"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Contact",
+          "item": "https://eggsandmore.ca/contact"
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

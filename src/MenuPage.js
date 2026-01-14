@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
@@ -14,6 +14,10 @@ export default function MenuPage() {
   const [dishRatings, setDishRatings] = useState({});
   const [loadingRatings, setLoadingRatings] = useState(true);
   const [scrollY, setScrollY] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priceFilter, setPriceFilter] = useState('all');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchInputRef = useRef(null);
 
   // Parallax scroll effect
   useEffect(() => {
@@ -57,10 +61,85 @@ export default function MenuPage() {
     fetchRatings();
   }, []);
 
+  // Keyboard shortcut for search (Ctrl/Cmd + K)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      if (e.key === 'Escape' && isSearchFocused) {
+        setSearchQuery('');
+        searchInputRef.current?.blur();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSearchFocused]);
+
+  // Filter and search logic
+  const filteredMenuData = useMemo(() => {
+    const currentMenuData = menuData[activeMenu];
+    if (!currentMenuData) return {};
+
+    const query = searchQuery.toLowerCase().trim();
+    const filtered = {};
+
+    Object.entries(currentMenuData).forEach(([category, items]) => {
+      if (Array.isArray(items)) {
+        const filteredItems = items.filter(item => {
+          // Search filter
+          const matchesSearch = !query || 
+            item.name.toLowerCase().includes(query) ||
+            (item.description && item.description.toLowerCase().includes(query));
+          
+          // Price filter
+          let matchesPrice = true;
+          if (priceFilter !== 'all' && item.price) {
+            const price = parseFloat(item.price);
+            if (priceFilter === 'under10') matchesPrice = price < 10;
+            else if (priceFilter === '10to15') matchesPrice = price >= 10 && price <= 15;
+            else if (priceFilter === '15to20') matchesPrice = price > 15 && price <= 20;
+            else if (priceFilter === 'over20') matchesPrice = price > 20;
+          }
+          
+          return matchesSearch && matchesPrice;
+        });
+        
+        if (filteredItems.length > 0) {
+          filtered[category] = filteredItems;
+        }
+      } else {
+        // Handle special sections
+        filtered[category] = items;
+      }
+    });
+
+    return filtered;
+  }, [activeMenu, searchQuery, priceFilter]);
+
+  // Count total results
+  const resultCount = useMemo(() => {
+    let count = 0;
+    Object.values(filteredMenuData).forEach(items => {
+      if (Array.isArray(items)) {
+        count += items.length;
+      }
+    });
+    return count;
+  }, [filteredMenuData]);
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchQuery('');
+    setPriceFilter('all');
+    setActiveCategory('');
+  };
+
   // Rating display component
   const renderRating = (dishName) => {
     if (loadingRatings) {
-      return <div className="loading-ratings">Loading ratings...</div>;
+      return <div className="loading-ratings" aria-live="polite">Loading ratings...</div>;
     }
 
     const ratingKey = Object.keys(dishRatings).find(
@@ -78,14 +157,14 @@ export default function MenuPage() {
     const hasHalfStar = avgRating % 1 >= 0.5;
     
     return (
-      <div className="rating-display">
+      <div className="rating-display" role="img" aria-label={`Rating: ${avgRating.toFixed(1)} out of 5 stars`}>
         {[...Array(5)].map((_, i) => {
           if (i < fullStars) {
-            return <span key={i} className="star filled">★</span>;
+            return <span key={i} className="star filled" aria-hidden="true">★</span>;
           } else if (i === fullStars && hasHalfStar) {
-            return <span key={i} className="star half">½</span>;
+            return <span key={i} className="star half" aria-hidden="true">½</span>;
           } else {
-            return <span key={i} className="star empty">★</span>;
+            return <span key={i} className="star empty" aria-hidden="true">★</span>;
           }
         })}
         <span className="rating-value">({avgRating.toFixed(1)})</span>
@@ -93,14 +172,16 @@ export default function MenuPage() {
     );
   };
 
-  
-
-  // Menu data imported from menuData.js
+  // Check if filters are active
+  const hasActiveFilters = searchQuery || priceFilter !== 'all';
 
   return (
-    <div className="menu-page">
+    <div className="menu-page" role="main">
+      {/* Skip to content link for accessibility */}
+      <a href="#menu-items" className="skip-link">Skip to menu items</a>
+      
       {/* Parallax Background Decorations */}
-      <div className="menu-bg-decorations">
+      <div className="menu-bg-decorations" aria-hidden="true">
         <div 
           className="menu-bg-shape menu-bg-circle-1" 
           style={{ transform: `translateY(${scrollY * 0.05}px)` }}
@@ -129,21 +210,93 @@ export default function MenuPage() {
 
       <main className="menu-content">
         {/* Header Section */}
-        <section className="menu-header">
+        <section className="menu-header" aria-labelledby="menu-heading">
           <div className="menu-title-border">
-            <h3>OUR MENU</h3>
+            <h1 id="menu-heading" className="sr-only">Our Menu</h1>
+            <h3 aria-hidden="true">OUR MENU</h3>
           </div>
         </section>
 
+        {/* Search and Filter Section */}
+        <section className="menu-search-section" aria-label="Search and filter menu">
+          <div className="search-container">
+            <div className={`search-input-wrapper ${isSearchFocused ? 'focused' : ''}`}>
+              <span className="search-icon" aria-hidden="true">🔍</span>
+              <input
+                ref={searchInputRef}
+                type="search"
+                className="menu-search-input"
+                placeholder="Search menu items... (Ctrl+K)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setIsSearchFocused(false)}
+                aria-label="Search menu items"
+                aria-describedby="search-hint"
+              />
+              {searchQuery && (
+                <button 
+                  className="search-clear-btn"
+                  onClick={() => setSearchQuery('')}
+                  aria-label="Clear search"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            <span id="search-hint" className="sr-only">
+              Press Ctrl+K to focus search. Press Escape to clear.
+            </span>
+          </div>
+          
+          <div className="filter-container">
+            <label htmlFor="price-filter" className="filter-label">
+              <span aria-hidden="true">💰</span> Price Range:
+            </label>
+            <select 
+              id="price-filter"
+              className="price-filter-select"
+              value={priceFilter}
+              onChange={(e) => setPriceFilter(e.target.value)}
+              aria-label="Filter by price range"
+            >
+              <option value="all">All Prices</option>
+              <option value="under10">Under $10</option>
+              <option value="10to15">$10 - $15</option>
+              <option value="15to20">$15 - $20</option>
+              <option value="over20">Over $20</option>
+            </select>
+          </div>
+
+          {hasActiveFilters && (
+            <div className="filter-results">
+              <span className="results-count" aria-live="polite">
+                {resultCount} {resultCount === 1 ? 'item' : 'items'} found
+              </span>
+              <button 
+                className="clear-filters-btn"
+                onClick={clearFilters}
+                aria-label="Clear all filters"
+              >
+                Clear Filters ✕
+              </button>
+            </div>
+          )}
+        </section>
+
         {/* Menu Selection */}
-        <section className="menu-selection">
-          <div className="menu-options">
+        <section className="menu-selection" aria-label="Menu categories">
+          <nav className="menu-options" role="tablist" aria-label="Menu type selection">
             <button 
               className={`menu-option ${activeMenu === 'breakfast' ? 'active' : ''}`}
               onClick={() => {
                 setActiveMenu('breakfast');
                 setActiveCategory('');
+                clearFilters();
               }}
+              role="tab"
+              aria-selected={activeMenu === 'breakfast'}
+              aria-controls="menu-items"
             >
               Breakfast & Brunch
             </button>
@@ -152,7 +305,11 @@ export default function MenuPage() {
               onClick={() => {
                 setActiveMenu('main');
                 setActiveCategory('');
+                clearFilters();
               }}
+              role="tab"
+              aria-selected={activeMenu === 'main'}
+              aria-controls="menu-items"
             >
               Main Menu
             </button>
@@ -161,7 +318,11 @@ export default function MenuPage() {
               onClick={() => {
                 setActiveMenu('drinks');
                 setActiveCategory('');
+                clearFilters();
               }}
+              role="tab"
+              aria-selected={activeMenu === 'drinks'}
+              aria-controls="menu-items"
             >
               Drinks
             </button>
@@ -170,50 +331,94 @@ export default function MenuPage() {
               onClick={() => {
                 setActiveMenu('eastern');
                 setActiveCategory('');
+                clearFilters();
               }}
+              role="tab"
+              aria-selected={activeMenu === 'eastern'}
+              aria-controls="menu-items"
             >
               Eastern Menu
             </button>
-          </div>
+            <button
+              className={`menu-option ${activeMenu === 'kids' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveMenu('kids');
+                setActiveCategory('');
+                clearFilters();
+              }}
+              role="tab"
+              aria-selected={activeMenu === 'kids'}
+              aria-controls="menu-items"
+            >
+              Kids Menu
+            </button>
+            <button
+              className={`menu-option ${activeMenu === 'seniors' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveMenu('seniors');
+                setActiveCategory('');
+                clearFilters();
+              }}
+              role="tab"
+              aria-selected={activeMenu === 'seniors'}
+              aria-controls="menu-items"
+            >
+              55+ Seniors
+            </button>
+          </nav>
         </section>
 
         {/* Categories */}
-        <div className="category-buttons">
-          {Object.keys(menuData[activeMenu]).map(category => (
-            <button
-              key={category}
-              className={`category-button ${activeCategory === category ? 'active' : ''}`}
-              onClick={() => setActiveCategory(activeCategory === category ? '' : category)}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
+        <nav className="category-buttons" aria-label="Menu subcategories">
+          {Object.keys(filteredMenuData).length > 0 ? (
+            Object.keys(filteredMenuData).map(category => (
+              <button
+                key={category}
+                className={`category-button ${activeCategory === category ? 'active' : ''}`}
+                onClick={() => setActiveCategory(activeCategory === category ? '' : category)}
+                aria-pressed={activeCategory === category}
+              >
+                {category}
+              </button>
+            ))
+          ) : (
+            <p className="no-results-message">No items match your search criteria.</p>
+          )}
+        </nav>
 
         {/* Menu Items */}
-        <div className="menu-items-container">
-          {activeCategory ? (
+        <div className="menu-items-container" id="menu-items" role="tabpanel">
+          {Object.keys(filteredMenuData).length === 0 && hasActiveFilters ? (
+            <div className="no-results">
+              <span className="no-results-icon" aria-hidden="true">🍳</span>
+              <h3>No items found</h3>
+              <p>Try adjusting your search or filters</p>
+              <button className="clear-filters-btn large" onClick={clearFilters}>
+                Clear All Filters
+              </button>
+            </div>
+          ) : activeCategory ? (
             <div className="menu-category">
               {/* Check if this is a special section */}
-              {menuData[activeMenu][activeCategory]?.isSpecialSection ? (
+              {filteredMenuData[activeCategory]?.isSpecialSection ? (
                 <div className="special-section">
                   <div className="special-section-header">
                     <div className="special-header-title">
                       <h2>{activeCategory}</h2>
-                      <span className="header-price">${menuData[activeMenu][activeCategory].headerPrice}</span>
+                      <span className="header-price">${filteredMenuData[activeCategory].headerPrice}</span>
                     </div>
-                    {menuData[activeMenu][activeCategory].headerNote && (
-                      <p className="header-note">{menuData[activeMenu][activeCategory].headerNote}</p>
+                    {filteredMenuData[activeCategory].headerNote && (
+                      <p className="header-note">{filteredMenuData[activeCategory].headerNote}</p>
                     )}
-                    {menuData[activeMenu][activeCategory].headerDescription && (
-                      <p className="header-description">{menuData[activeMenu][activeCategory].headerDescription}</p>
+                    {filteredMenuData[activeCategory].headerDescription && (
+                      <p className="header-description">{filteredMenuData[activeCategory].headerDescription}</p>
                     )}
                   </div>
                   
                   {/* Side Options Grid */}
-                  {menuData[activeMenu][activeCategory].sideOptions && (
+                  {filteredMenuData[activeCategory].sideOptions && (
                     <div className="side-options-grid">
-                      {menuData[activeMenu][activeCategory].sideOptions.map((option, index) => (
+                      {filteredMenuData[activeCategory].sideOptions.map((option, index) => (
                         <div key={index} className="side-option">
                           <span className="option-name">{option.name}</span>
                           {option.surcharge && <span className="option-surcharge">{option.surcharge}</span>}
@@ -223,13 +428,16 @@ export default function MenuPage() {
                   )}
                   
                   {/* Special Items */}
-                  {menuData[activeMenu][activeCategory].specialItems && (
+                  {filteredMenuData[activeCategory].specialItems && (
                     <div className="items-grid special-items">
-                      {menuData[activeMenu][activeCategory].specialItems.map((item, index) => (
+                      {filteredMenuData[activeCategory].specialItems.map((item, index) => (
                         <div 
                           key={index} 
                           className="menu-item special-item"
                           onClick={() => navigate(`/menu/rate/${activeMenu}/${activeCategory}/${encodeURIComponent(item.name)}`)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => e.key === 'Enter' && navigate(`/menu/rate/${activeMenu}/${activeCategory}/${encodeURIComponent(item.name)}`)}
                         >
                           <div className="special-item-header">
                             <h3>{item.name}</h3>
@@ -242,18 +450,21 @@ export default function MenuPage() {
                     </div>
                   )}
                 </div>
-              ) : (
+              ) : filteredMenuData[activeCategory] ? (
                 <>
                   <h2>{activeCategory}</h2>
                   <div className="items-grid">
-                    {menuData[activeMenu][activeCategory].map((item, index) => (
+                    {filteredMenuData[activeCategory].map((item, index) => (
                       <div 
                         key={index} 
                         className="menu-item"
                         onClick={() => navigate(`/menu/rate/${activeMenu}/${activeCategory}/${encodeURIComponent(item.name)}`)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === 'Enter' && navigate(`/menu/rate/${activeMenu}/${activeCategory}/${encodeURIComponent(item.name)}`)}
                       >
-                        <div className="item-image-placeholder">
-                          [Image]
+                        <div className="item-image-placeholder" aria-hidden="true">
+                          🍳
                         </div>
                         <h3>{item.name}</h3>
                         {item.description && <p>{item.description}</p>}
@@ -265,20 +476,20 @@ export default function MenuPage() {
                     ))}
                   </div>
                 </>
-              )}
+              ) : null}
             </div>
           ) : (
-            Object.keys(menuData[activeMenu]).map(category => {
-              const categoryData = menuData[activeMenu][category];
+            Object.keys(filteredMenuData).map(category => {
+              const categoryData = filteredMenuData[category];
               const isSpecial = categoryData?.isSpecialSection;
               
               return (
-                <div key={category} className="menu-category">
+                <article key={category} className="menu-category" aria-labelledby={`category-${category.replace(/\s+/g, '-')}`}>
                   {isSpecial ? (
                     <div className="special-section">
                       <div className="special-section-header">
                         <div className="special-header-title">
-                          <h2>{category}</h2>
+                          <h2 id={`category-${category.replace(/\s+/g, '-')}`}>{category}</h2>
                           <span className="header-price">${categoryData.headerPrice}</span>
                         </div>
                         {categoryData.headerNote && (
@@ -291,9 +502,9 @@ export default function MenuPage() {
                       
                       {/* Side Options Grid */}
                       {categoryData.sideOptions && (
-                        <div className="side-options-grid">
+                        <div className="side-options-grid" role="list">
                           {categoryData.sideOptions.map((option, index) => (
-                            <div key={index} className="side-option">
+                            <div key={index} className="side-option" role="listitem">
                               <span className="option-name">{option.name}</span>
                               {option.surcharge && <span className="option-surcharge">{option.surcharge}</span>}
                             </div>
@@ -309,6 +520,9 @@ export default function MenuPage() {
                               key={index} 
                               className="menu-item special-item"
                               onClick={() => navigate(`/menu/rate/${activeMenu}/${category}/${encodeURIComponent(item.name)}`)}
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) => e.key === 'Enter' && navigate(`/menu/rate/${activeMenu}/${category}/${encodeURIComponent(item.name)}`)}
                             >
                               <div className="special-item-header">
                                 <h3>{item.name}</h3>
@@ -323,16 +537,19 @@ export default function MenuPage() {
                     </div>
                   ) : (
                     <>
-                      <h2>{category}</h2>
+                      <h2 id={`category-${category.replace(/\s+/g, '-')}`}>{category}</h2>
                       <div className="items-grid">
                         {categoryData.map((item, index) => (
                           <div 
                             key={index} 
                             className="menu-item"
                             onClick={() => navigate(`/menu/rate/${activeMenu}/${category}/${encodeURIComponent(item.name)}`)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => e.key === 'Enter' && navigate(`/menu/rate/${activeMenu}/${category}/${encodeURIComponent(item.name)}`)}
                           >
-                            <div className="item-image-placeholder">
-                              [Image]
+                            <div className="item-image-placeholder" aria-hidden="true">
+                              🍳
                             </div>
                             <h3>{item.name}</h3>
                             {item.description && <p>{item.description}</p>}
@@ -345,7 +562,7 @@ export default function MenuPage() {
                       </div>
                     </>
                   )}
-                </div>
+                </article>
               );
             })
           )}

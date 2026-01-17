@@ -95,3 +95,4 @@ export default function StoreHours({ variant = 'default' }) {
 
 export { storeHours };
 
+

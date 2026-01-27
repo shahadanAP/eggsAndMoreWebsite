@@ -85,6 +85,16 @@ export default function MenuPage() {
     const query = searchQuery.toLowerCase().trim();
     const filtered = {};
 
+    const matchesPriceFilter = (item) => {
+      if (priceFilter === 'all' || !item.price) return true;
+      const price = parseFloat(item.price);
+      if (priceFilter === 'under10') return price < 10;
+      if (priceFilter === '10to15') return price >= 10 && price <= 15;
+      if (priceFilter === '15to20') return price > 15 && price <= 20;
+      if (priceFilter === 'over20') return price > 20;
+      return true;
+    };
+
     Object.entries(currentMenuData).forEach(([category, items]) => {
       if (Array.isArray(items)) {
         const filteredItems = items.filter(item => {
@@ -109,9 +119,45 @@ export default function MenuPage() {
         if (filteredItems.length > 0) {
           filtered[category] = filteredItems;
         }
-      } else {
-        // Handle special sections
-        filtered[category] = items;
+      } else if (items && items.isSpecialSection) {
+        const categoryMatches = query && category.toLowerCase().includes(query);
+        const headerMatches = query && (
+          (items.headerDescription && items.headerDescription.toLowerCase().includes(query)) ||
+          (items.headerNote && items.headerNote.toLowerCase().includes(query))
+        );
+
+        const filteredSpecialItems = (items.specialItems || []).filter(item => {
+          const matchesSearch = !query ||
+            item.name.toLowerCase().includes(query) ||
+            (item.description && item.description.toLowerCase().includes(query));
+          return matchesSearch && matchesPriceFilter(item);
+        });
+
+        const filteredSideOptions = (items.sideOptions || []).filter(option =>
+          !query || option.name.toLowerCase().includes(query)
+        );
+
+        const includeSection = query
+          ? (categoryMatches || headerMatches || filteredSpecialItems.length > 0 || filteredSideOptions.length > 0)
+          : (priceFilter === 'all' ? true : filteredSpecialItems.length > 0);
+
+        if (includeSection) {
+          if (!query) {
+            filtered[category] = priceFilter === 'all'
+              ? items
+              : { ...items, specialItems: filteredSpecialItems };
+          } else if (categoryMatches || headerMatches) {
+            filtered[category] = priceFilter === 'all'
+              ? items
+              : { ...items, specialItems: filteredSpecialItems };
+          } else {
+            filtered[category] = {
+              ...items,
+              ...(filteredSpecialItems.length > 0 ? { specialItems: filteredSpecialItems } : {}),
+              ...(filteredSideOptions.length > 0 ? { sideOptions: filteredSideOptions } : {})
+            };
+          }
+        }
       }
     });
 

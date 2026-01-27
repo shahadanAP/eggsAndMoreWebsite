@@ -1496,6 +1496,13 @@ a {
   overflow: hidden;
 }
 
+.search-highlight {
+  background: rgba(212, 168, 83, 0.35);
+  color: inherit;
+  padding: 0 0.1em;
+  border-radius: 0.2em;
+}
+
 /* Parallax Background Decorations */
 .menu-bg-decorations {
   position: fixed;

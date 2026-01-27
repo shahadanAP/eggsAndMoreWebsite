@@ -77,13 +77,28 @@ export default function MenuPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isSearchFocused]);
 
+  useEffect(() => {
+    if (searchQuery) {
+      setActiveCategory('');
+    }
+  }, [searchQuery]);
+
   // Filter and search logic
   const filteredMenuData = useMemo(() => {
-    const currentMenuData = menuData[activeMenu];
-    if (!currentMenuData) return {};
+    const menuLabels = {
+      breakfast: 'Breakfast & Brunch',
+      main: 'Main Menu',
+      drinks: 'Drinks',
+      eastern: 'Eastern Menu',
+      kids: 'Kids Menu',
+      seniors: '55+ Seniors'
+    };
 
     const query = searchQuery.toLowerCase().trim();
     const filtered = {};
+    const menusToSearch = query
+      ? Object.entries(menuData)
+      : [[activeMenu, menuData[activeMenu]]];
 
     const matchesPriceFilter = (item) => {
       if (priceFilter === 'all' || !item.price) return true;
@@ -95,7 +110,12 @@ export default function MenuPage() {
       return true;
     };
 
-    Object.entries(currentMenuData).forEach(([category, items]) => {
+    menusToSearch.forEach(([menuKey, menu]) => {
+      if (!menu) return;
+      const menuLabel = menuLabels[menuKey] || menuKey;
+
+      Object.entries(menu).forEach(([category, items]) => {
+        const categoryLabel = query ? `${menuLabel} — ${category}` : category;
       if (Array.isArray(items)) {
         const filteredItems = items.filter(item => {
           // Search filter
@@ -117,7 +137,7 @@ export default function MenuPage() {
         });
         
         if (filteredItems.length > 0) {
-          filtered[category] = filteredItems;
+          filtered[categoryLabel] = filteredItems;
         }
       } else if (items && items.isSpecialSection) {
         const categoryMatches = query && category.toLowerCase().includes(query);
@@ -143,15 +163,15 @@ export default function MenuPage() {
 
         if (includeSection) {
           if (!query) {
-            filtered[category] = priceFilter === 'all'
+            filtered[categoryLabel] = priceFilter === 'all'
               ? items
               : { ...items, specialItems: filteredSpecialItems };
           } else if (categoryMatches || headerMatches) {
-            filtered[category] = priceFilter === 'all'
+            filtered[categoryLabel] = priceFilter === 'all'
               ? items
               : { ...items, specialItems: filteredSpecialItems };
           } else {
-            filtered[category] = {
+            filtered[categoryLabel] = {
               ...items,
               ...(filteredSpecialItems.length > 0 ? { specialItems: filteredSpecialItems } : {}),
               ...(filteredSideOptions.length > 0 ? { sideOptions: filteredSideOptions } : {})
@@ -159,6 +179,7 @@ export default function MenuPage() {
           }
         }
       }
+      });
     });
 
     return filtered;
@@ -216,6 +237,18 @@ export default function MenuPage() {
         <span className="rating-value">({avgRating.toFixed(1)})</span>
       </div>
     );
+  };
+
+  const highlightText = (text) => {
+    if (!searchQuery || !text) return text;
+    const escapedQuery = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedQuery})`, 'ig');
+    return text.split(regex).map((part, index) => {
+      if (part.toLowerCase() === searchQuery.toLowerCase()) {
+        return <mark key={`${part}-${index}`} className="search-highlight">{part}</mark>;
+      }
+      return part;
+    });
   };
 
   // Check if filters are active
@@ -450,14 +483,14 @@ export default function MenuPage() {
                 <div className="special-section">
                   <div className="special-section-header">
                     <div className="special-header-title">
-                      <h2>{activeCategory}</h2>
+                      <h2>{highlightText(activeCategory)}</h2>
                       <span className="header-price">${filteredMenuData[activeCategory].headerPrice}</span>
                     </div>
                     {filteredMenuData[activeCategory].headerNote && (
-                      <p className="header-note">{filteredMenuData[activeCategory].headerNote}</p>
+                      <p className="header-note">{highlightText(filteredMenuData[activeCategory].headerNote)}</p>
                     )}
                     {filteredMenuData[activeCategory].headerDescription && (
-                      <p className="header-description">{filteredMenuData[activeCategory].headerDescription}</p>
+                      <p className="header-description">{highlightText(filteredMenuData[activeCategory].headerDescription)}</p>
                     )}
                   </div>
                   
@@ -466,7 +499,7 @@ export default function MenuPage() {
                     <div className="side-options-grid">
                       {filteredMenuData[activeCategory].sideOptions.map((option, index) => (
                         <div key={index} className="side-option">
-                          <span className="option-name">{option.name}</span>
+                          <span className="option-name">{highlightText(option.name)}</span>
                           {option.surcharge && <span className="option-surcharge">{option.surcharge}</span>}
                         </div>
                       ))}
@@ -486,10 +519,10 @@ export default function MenuPage() {
                           onKeyDown={(e) => e.key === 'Enter' && navigate(`/menu/rate/${activeMenu}/${activeCategory}/${encodeURIComponent(item.name)}`)}
                         >
                           <div className="special-item-header">
-                            <h3>{item.name}</h3>
+                            <h3>{highlightText(item.name)}</h3>
                             <div className="price">${item.price}</div>
                           </div>
-                          {item.description && <p>{item.description}</p>}
+                          {item.description && <p>{highlightText(item.description)}</p>}
                           {renderRating(item.name)}
                         </div>
                       ))}
@@ -498,7 +531,7 @@ export default function MenuPage() {
                 </div>
               ) : filteredMenuData[activeCategory] ? (
                 <>
-                  <h2>{activeCategory}</h2>
+                  <h2>{highlightText(activeCategory)}</h2>
                   <div className="items-grid">
                     {filteredMenuData[activeCategory].map((item, index) => (
                       <div 
@@ -512,8 +545,8 @@ export default function MenuPage() {
                         <div className="item-image-placeholder" aria-hidden="true">
                           🍳
                         </div>
-                        <h3>{item.name}</h3>
-                        {item.description && <p>{item.description}</p>}
+                        <h3>{highlightText(item.name)}</h3>
+                        {item.description && <p>{highlightText(item.description)}</p>}
                         <div className="price-rating-container">
                           <div className="price">${item.price}</div>
                           {renderRating(item.name)}
@@ -535,14 +568,14 @@ export default function MenuPage() {
                     <div className="special-section">
                       <div className="special-section-header">
                         <div className="special-header-title">
-                          <h2 id={`category-${category.replace(/\s+/g, '-')}`}>{category}</h2>
+                          <h2 id={`category-${category.replace(/\s+/g, '-')}`}>{highlightText(category)}</h2>
                           <span className="header-price">${categoryData.headerPrice}</span>
                         </div>
                         {categoryData.headerNote && (
-                          <p className="header-note">{categoryData.headerNote}</p>
+                          <p className="header-note">{highlightText(categoryData.headerNote)}</p>
                         )}
                         {categoryData.headerDescription && (
-                          <p className="header-description">{categoryData.headerDescription}</p>
+                          <p className="header-description">{highlightText(categoryData.headerDescription)}</p>
                         )}
                       </div>
                       
@@ -551,7 +584,7 @@ export default function MenuPage() {
                         <div className="side-options-grid" role="list">
                           {categoryData.sideOptions.map((option, index) => (
                             <div key={index} className="side-option" role="listitem">
-                              <span className="option-name">{option.name}</span>
+                              <span className="option-name">{highlightText(option.name)}</span>
                               {option.surcharge && <span className="option-surcharge">{option.surcharge}</span>}
                             </div>
                           ))}
@@ -571,10 +604,10 @@ export default function MenuPage() {
                               onKeyDown={(e) => e.key === 'Enter' && navigate(`/menu/rate/${activeMenu}/${category}/${encodeURIComponent(item.name)}`)}
                             >
                               <div className="special-item-header">
-                                <h3>{item.name}</h3>
+                                <h3>{highlightText(item.name)}</h3>
                                 <div className="price">${item.price}</div>
                               </div>
-                              {item.description && <p>{item.description}</p>}
+                              {item.description && <p>{highlightText(item.description)}</p>}
                               {renderRating(item.name)}
                             </div>
                           ))}
@@ -583,7 +616,7 @@ export default function MenuPage() {
                     </div>
                   ) : (
                     <>
-                      <h2 id={`category-${category.replace(/\s+/g, '-')}`}>{category}</h2>
+                      <h2 id={`category-${category.replace(/\s+/g, '-')}`}>{highlightText(category)}</h2>
                       <div className="items-grid">
                         {categoryData.map((item, index) => (
                           <div 
@@ -597,8 +630,8 @@ export default function MenuPage() {
                             <div className="item-image-placeholder" aria-hidden="true">
                               🍳
                             </div>
-                            <h3>{item.name}</h3>
-                            {item.description && <p>{item.description}</p>}
+                            <h3>{highlightText(item.name)}</h3>
+                            {item.description && <p>{highlightText(item.description)}</p>}
                             <div className="price-rating-container">
                               <div className="price">${item.price}</div>
                               {renderRating(item.name)}

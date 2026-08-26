@@ -229,8 +229,16 @@ app.use('/api', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
 });
 
-// Debug endpoint for connection status (do not expose in production without auth)
+// Debug endpoint for connection status.
+// In production this leaks the DB host, database name and raw driver errors, so it is
+// only served when DEBUG_TOKEN is set and the caller presents it.
 app.get('/debug/db-status', (req, res) => {
+  if (isProd) {
+    const expected = process.env.DEBUG_TOKEN;
+    if (!expected || req.get('x-debug-token') !== expected) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+  }
   res.json({
     readyState: mongoose.connection.readyState, // 0 disconnected, 1 connected
     attempts: mongoConnectAttempt,
